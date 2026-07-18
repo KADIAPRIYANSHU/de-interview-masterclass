@@ -238,8 +238,14 @@ cd "d:\Snowflake Learning"
 git add .
 git commit -m "your change description"
 
-# Push to Vercel production
+# Push to GitHub (auto-triggers Vercel redeploy once linked)
+git push origin main
+
+# OR deploy directly to Vercel production
 npx vercel --prod
 ```
 
-> The Vercel account is `kadiapriyanshu@gmail.com`. Auth token is cached locally via the Vercel CLI.
+> **GitHub Repo:** [github.com/KADIAPRIYANSHU/de-interview-masterclass](https://github.com/KADIAPRIYANSHU/de-interview-masterclass)
+> **Vercel Account:** `kadiapriyanshu@gmail.com` — auth token cached locally via Vercel CLI
+> **Live URL:** [de-interview-masterclass.vercel.app](https://de-interview-masterclass.vercel.app)
+.
