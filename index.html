@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Data Engineering Interview Masterclass</title>
+    <meta name="description" content="A unified reading guide and interview preparation platform for Snowflake, Azure Data Factory (ADF), and dbt." />
+    <link rel="stylesheet" href="style.css" />
+    <!-- Pre-load consolidated datasets -->
+    <script>window.courseLessons = window.courseLessons || {};</script>
+    <script defer src="data/snowflake.js?v=5"></script>
+    <script defer src="data/adf.js?v=5"></script>
+    <script defer src="data/dbt.js?v=5"></script>
+    <script defer src="data/sql.js?v=5"></script>
+    <script defer src="data/python.js?v=5"></script>
+    <script defer src="data/fundamentals.js?v=5"></script>
+    <script defer src="data/devops_obs.js?v=5"></script>
+    <script defer src="data/aide.js?v=5"></script>
+    <script defer src="app.js?v=5"></script>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header-wrapper">
+                <div class="sidebar-header">
+                    <div class="sidebar-logo">❄️</div>
+                    <h1 class="sidebar-title" id="sidebar-main-title">DE Masterclass</h1>
+                </div>
+                <!-- 1-Click Switcher Tabs -->
+                <div class="tech-switcher" style="flex-wrap: wrap;">
+                    <button class="tech-tab active" data-tech="snowflake">Snowflake</button>
+                    <button class="tech-tab" data-tech="adf">ADF</button>
+                    <button class="tech-tab" data-tech="dbt">dbt</button>
+                    <button class="tech-tab" data-tech="sql">SQL</button>
+                    <button class="tech-tab" data-tech="python">Python</button>
+                    <button class="tech-tab" data-tech="fundamentals">Fundamentals</button>
+                    <button class="tech-tab" data-tech="devops_obs">DevOps & Obs</button>
+                    <button class="tech-tab" data-tech="aide">AI in DE</button>
+                </div>
+                <!-- Module Completion Progress -->
+                <div class="progress-container" style="padding: 0.5rem 1rem 0.25rem 1rem; border-top: 1px solid var(--border-color);">
+                    <div style="display: flex; justify-content: space-between; font-size: 0.78rem; margin-bottom: 4px; color: var(--text-secondary);">
+                        <span>Syllabus Progress</span>
+                        <span id="progress-percent" style="font-weight: 600; color: var(--accent);">0%</span>
+                    </div>
+                    <div class="progress-bar-bg" style="width: 100%; height: 6px; background: rgba(255,255,255,0.08); border-radius: 3px; overflow: hidden;">
+                        <div id="progress-fill" style="width: 0%; height: 100%; background: var(--accent); transition: width 0.3s ease;"></div>
+                    </div>
+                </div>
+                <!-- Search & Filters -->
+                <div class="sidebar-search-box" style="padding: 0.5rem 1rem 0.75rem 1rem; border-bottom: 1px solid var(--border-color);">
+                    <input type="text" id="search-input" placeholder="🔍 Search topics..." style="width: 100%; padding: 0.4rem 0.6rem; border-radius: 4px; border: 1px solid var(--border-color); background: var(--bg-secondary); color: var(--text-primary); font-size: 0.8rem; margin-bottom: 0.4rem; outline: none; transition: border-color 0.2s;" />
+                    <label style="display: flex; align-items: center; gap: 0.4rem; font-size: 0.75rem; color: var(--text-secondary); cursor: pointer;">
+                        <input type="checkbox" id="bookmarks-only-toggle" style="cursor: pointer;" />
+                        <span>Show Bookmarks Only</span>
+                    </label>
+                </div>
+            </div>
+
+            <!-- Dynamic Curriculum Navigation -->
+            <nav class="sidebar-nav" id="sidebar-nav">
+                <!-- Dynamically populated via app.js -->
+            </nav>
+
+            <!-- Recently Viewed Section -->
+            <div class="recently-viewed-box" style="padding: 0.75rem 1rem; border-top: 1px solid var(--border-color);">
+                <div style="font-size: 0.75rem; color: var(--text-secondary); font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.4rem;">Recently Viewed</div>
+                <div id="recently-viewed-list" style="display: flex; flex-direction: column; gap: 0.25rem;">
+                    <!-- Injected dynamically -->
+                </div>
+            </div>
+
+            <div class="sidebar-footer">
+                <button class="theme-toggle-btn" id="theme-toggle-btn">
+                    <span id="theme-icon">🌙</span> <span id="theme-text">Dark Mode</span>
+                </button>
+            </div>
+        </aside>
+
+        <!-- Main Workspace -->
+        <main class="main-workspace">
+            <!-- Top Controls -->
+            <header class="top-nav">
+                <div style="display: flex; align-items: center; gap: 1.5rem;">
+                    <button class="menu-toggle" id="menu-toggle" aria-label="Toggle Navigation">☰</button>
+                    <span class="logo-title-mobile" id="logo-title-mobile">Snowflake Prep</span>
+                </div>
+                
+                <div class="lesson-meta" id="header-meta-info">
+                    <span class="meta-badge" id="breadcrumb-stage">Stage 1</span>
+                    <span class="meta-badge" id="breadcrumb-lesson">Topic 1.1</span>
+                    <span id="lesson-duration">🕒 10 min read</span>
+                    <span class="meta-badge" id="lesson-difficulty">Beginner</span>
+                </div>
+            </header>
+
+            <!-- ================= STUDY CONTENT PANEL ================= -->
+            <div id="study-panel">
+                <!-- Title Block -->
+                <div class="lesson-header-section" style="display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; flex-wrap: wrap; margin-bottom: 1.5rem;">
+                    <div style="flex: 1; min-width: 250px;">
+                        <h1 class="lesson-title" id="lesson-title" style="margin: 0 0 0.25rem 0;">Loading Lesson...</h1>
+                        <p class="lesson-desc" id="lesson-subtitle" style="margin: 0;">Please wait while the content initializes.</p>
+                    </div>
+                    <div class="action-buttons-group" style="display: flex; gap: 0.5rem; align-items: center;">
+                        <button id="bookmark-toggle-btn" class="action-btn" style="background: var(--bg-secondary); color: var(--text-primary); border: 1px solid var(--border-color); padding: 0.4rem 0.8rem; border-radius: 4px; cursor: pointer; display: flex; align-items: center; gap: 0.4rem; font-size: 0.8rem; font-weight: 500; transition: all 0.2s;">
+                            <span id="bookmark-star-icon" style="color: var(--accent);">☆</span> Bookmark
+                        </button>
+                        <button id="complete-toggle-btn" class="action-btn" style="background: var(--bg-secondary); color: var(--text-primary); border: 1px solid var(--border-color); padding: 0.4rem 0.8rem; border-radius: 4px; cursor: pointer; display: flex; align-items: center; gap: 0.4rem; font-size: 0.8rem; font-weight: 500; transition: all 0.2s;">
+                            <span id="complete-check-icon" style="color: var(--accent);">⬜</span> Mark Completed
+                        </button>
+                        <button id="download-code-btn" class="action-btn" style="background: var(--bg-secondary); color: var(--text-primary); border: 1px solid var(--border-color); padding: 0.4rem 0.8rem; border-radius: 4px; cursor: pointer; display: flex; align-items: center; gap: 0.4rem; font-size: 0.8rem; font-weight: 500; transition: all 0.2s; display: none;">
+                            <span>📥</span> Code Examples
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Technical Theory / Core Concepts -->
+                <section class="card theory-card">
+                    <div class="section-title">📘 Core Concepts & Theory</div>
+                    <div id="theory-text"></div>
+                </section>
+
+                <!-- Personal Study Notes -->
+                <section class="card notes-card">
+                    <div class="section-title" style="display: flex; justify-content: space-between; align-items: center;">
+                        <span>📝 My Study Notes</span>
+                        <span style="font-size: 0.75rem; font-weight: normal; color: var(--text-secondary); font-style: italic;">Auto-saved to browser</span>
+                    </div>
+                    <textarea id="notes-textarea" placeholder="Type your personal summary, key details, or custom scripting formulas for this topic here..." style="width: 100%; min-height: 90px; padding: 0.75rem; border-radius: 6px; border: 1px solid var(--border-color); background: var(--bg-secondary); color: var(--text-primary); font-family: inherit; font-size: 0.85rem; line-height: 1.5; resize: vertical; outline: none; transition: border-color 0.2s;"></textarea>
+                </section>
+
+                <!-- Real Interview Q&As (Collapsible Accordion) -->
+                <section class="card interview-box" id="interview-section">
+                    <div class="interview-header">
+                        🎤 Senior Interview Q&A Preparation
+                    </div>
+                    <p class="section-instruction">Click on a question to expand/collapse the detailed answer.</p>
+                    <div class="interview-qna-list" id="interview-qna-list">
+                        <!-- Questions injected here via JS -->
+                    </div>
+                </section>
+            </div>
+
+            <!-- Main Page Footer -->
+            <footer class="workspace-footer">
+                <div>© 2026 Data Engineering Interview Masterclass • Mentored by Senior Staff Data Engineer</div>
+            </footer>
+        </main>
+    </div>
+</body>
+</html>

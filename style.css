@@ -1,0 +1,610 @@
+@import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;600;700;800&display=swap');
+
+:root {
+    /* Dark Theme (Default) */
+    --bg-primary: #0b0f19;
+    --bg-secondary: #121826;
+    --bg-tertiary: #1f293d;
+    --bg-accent: rgba(56, 189, 248, 0.06);
+    --text-main: #f8fafc;
+    --text-primary: #f8fafc;
+    --text-secondary: #cbd5e1;
+    --text-muted: #94a3b8;
+    --accent: #38bdf8;
+    --accent-cyan: #38bdf8;
+    --accent-emerald: #10b981;
+    --accent-rose: #f43f5e;
+    --accent-amber: #f59e0b;
+    --accent-purple: #a78bfa;
+    --border-color: rgba(255, 255, 255, 0.08);
+    --radius-sm: 6px;
+    --radius-md: 12px;
+    --transition-smooth: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+body.light-theme {
+    /* Light Theme Settings */
+    --bg-primary: #f8fafc;
+    --bg-secondary: #ffffff;
+    --bg-tertiary: #f1f5f9;
+    --bg-accent: rgba(2, 132, 199, 0.05);
+    --text-main: #0f172a;
+    --text-primary: #0f172a;
+    --text-secondary: #334155;
+    --text-muted: #64748b;
+    --accent: #0284c7;
+    --accent-cyan: #0284c7;
+    --accent-emerald: #059669;
+    --accent-rose: #e11d48;
+    --accent-amber: #d97706;
+    --accent-purple: #7c3aed;
+    --border-color: rgba(15, 23, 42, 0.08);
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    background-color: var(--bg-primary);
+    color: var(--text-main);
+    font-family: 'Inter', sans-serif;
+    line-height: 1.6;
+    overflow-x: hidden;
+    transition: background-color var(--transition-smooth), color var(--transition-smooth);
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+::-webkit-scrollbar-track {
+    background: var(--bg-primary);
+}
+::-webkit-scrollbar-thumb {
+    background: var(--bg-tertiary);
+    border-radius: var(--radius-sm);
+}
+::-webkit-scrollbar-thumb:hover {
+    background: var(--accent-cyan);
+}
+
+/* App Structure */
+.app-container {
+    display: flex;
+    min-height: 100vh;
+}
+
+/* Sidebar Styling */
+.sidebar {
+    width: 300px;
+    background-color: var(--bg-secondary);
+    border-right: 1px solid var(--border-color);
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 100;
+    transition: transform var(--transition-smooth);
+}
+
+.sidebar-header-wrapper {
+    border-bottom: 1px solid var(--border-color);
+}
+
+.sidebar-header {
+    padding: 1.25rem 1.25rem 0.75rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.sidebar-logo {
+    font-size: 1.8rem;
+    color: var(--accent-cyan);
+    font-weight: 800;
+}
+
+.sidebar-title {
+    font-family: 'Outfit', sans-serif;
+    font-size: 1.2rem;
+    font-weight: 700;
+}
+
+/* Technology Switcher Tab */
+.tech-switcher {
+    display: flex;
+    padding: 0.25rem;
+    gap: 0.25rem;
+    background-color: var(--bg-primary);
+    margin: 0 0.85rem 0.85rem;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border-color);
+}
+
+.tech-tab {
+    flex: 1;
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    font-family: 'Outfit', sans-serif;
+    font-size: 0.8rem;
+    font-weight: 600;
+    padding: 0.45rem;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: all 0.15s ease;
+}
+
+.tech-tab:hover {
+    color: var(--text-main);
+    background-color: rgba(255, 255, 255, 0.05);
+}
+
+.tech-tab.active {
+    background-color: var(--bg-tertiary);
+    color: var(--accent-cyan);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+.sidebar-nav {
+    flex: 1;
+    overflow-y: auto;
+    padding: 1.25rem 0.75rem;
+}
+
+.module-group {
+    margin-bottom: 1.5rem;
+}
+
+.module-header {
+    font-family: 'Outfit', sans-serif;
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-muted);
+    padding: 0 0.75rem 0.5rem;
+    font-weight: 700;
+}
+
+.lesson-list {
+    list-style: none;
+}
+
+.lesson-item {
+    padding: 0.65rem 0.75rem;
+    margin-bottom: 0.25rem;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    color: var(--text-muted);
+    transition: all 0.15s ease;
+}
+
+.lesson-item:hover {
+    background-color: var(--bg-tertiary);
+    color: var(--text-main);
+}
+
+.lesson-item.active {
+    background-color: var(--bg-accent);
+    color: var(--accent-cyan);
+    font-weight: 600;
+    border-left: 3px solid var(--accent-cyan);
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+}
+
+.sidebar-footer {
+    padding: 1rem;
+    border-top: 1px solid var(--border-color);
+    display: flex;
+    justify-content: center;
+}
+
+.theme-toggle-btn {
+    background-color: var(--bg-tertiary);
+    border: 1px solid var(--border-color);
+    color: var(--text-main);
+    padding: 0.5rem 1rem;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    font-size: 0.85rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: background-color 0.2s;
+    width: 100%;
+    justify-content: center;
+}
+
+.theme-toggle-btn:hover {
+    background-color: var(--bg-secondary);
+}
+
+/* Main Workspace */
+.main-workspace {
+    flex: 1;
+    margin-left: 300px;
+    padding: 2rem;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.top-nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid var(--border-color);
+    margin-bottom: 2rem;
+}
+
+.menu-toggle {
+    display: none;
+    font-size: 1.5rem;
+    background: none;
+    border: none;
+    color: var(--text-main);
+    cursor: pointer;
+}
+
+.logo-title-mobile {
+    display: none;
+    font-family: 'Outfit', sans-serif;
+    font-weight: 700;
+    font-size: 1.2rem;
+}
+
+.lesson-meta {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-size: 0.85rem;
+    color: var(--text-muted);
+}
+
+.meta-badge {
+    background-color: var(--bg-tertiary);
+    color: var(--text-main);
+    padding: 0.2rem 0.6rem;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border-color);
+    font-weight: 500;
+}
+
+/* Study Content elements */
+.lesson-header-section {
+    margin-bottom: 2rem;
+}
+
+.lesson-title {
+    font-family: 'Outfit', sans-serif;
+    font-size: 2.25rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    letter-spacing: -0.02em;
+}
+
+.lesson-desc {
+    color: var(--text-muted);
+    font-size: 1.1rem;
+    font-weight: 400;
+}
+
+/* Card layout */
+.card {
+    background-color: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    padding: 2rem;
+    margin-bottom: 2rem;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+.section-title {
+    font-family: 'Outfit', sans-serif;
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--accent-cyan);
+    margin-bottom: 1.25rem;
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 0.5rem;
+}
+
+/* Theory styles */
+#theory-text {
+    font-size: 1.05rem;
+    line-height: 1.7;
+    color: var(--text-main);
+}
+
+#theory-text h3 {
+    font-family: 'Outfit', sans-serif;
+    font-size: 1.2rem;
+    margin-top: 1.5rem;
+    margin-bottom: 0.75rem;
+    color: var(--accent-cyan);
+}
+
+#theory-text ul {
+    margin-left: 1.5rem;
+    margin-bottom: 1.25rem;
+}
+
+#theory-text li {
+    margin-bottom: 0.5rem;
+}
+
+#theory-text code {
+    font-family: 'Fira Code', monospace;
+    background-color: var(--bg-tertiary);
+    padding: 0.15rem 0.35rem;
+    border-radius: 4px;
+    font-size: 0.9em;
+}
+
+#theory-text p {
+    margin-bottom: 1.25rem;
+}
+
+/* Tables styling */
+.custom-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 1.5rem 0;
+    font-size: 0.95rem;
+    text-align: left;
+}
+
+.custom-table th {
+    background-color: var(--bg-tertiary);
+    color: var(--text-main);
+    padding: 0.75rem 1rem;
+    border-bottom: 2px solid var(--border-color);
+    font-weight: 600;
+}
+
+.custom-table td {
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid var(--border-color);
+    color: var(--text-muted);
+}
+
+.custom-table tr:hover td {
+    color: var(--text-main);
+    background-color: rgba(255, 255, 255, 0.01);
+}
+
+/* Dynamic Tags */
+.tag {
+    display: inline-block;
+    padding: 0.15rem 0.5rem;
+    border-radius: var(--radius-sm);
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.tag-success {
+    background-color: rgba(16, 185, 129, 0.15);
+    color: var(--accent-emerald);
+    border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.tag-primary {
+    background-color: rgba(59, 130, 246, 0.15);
+    color: var(--accent-cyan);
+    border: 1px solid rgba(59, 130, 246, 0.3);
+}
+
+/* Interview Box Accordion Styles */
+.interview-box {
+    border: 1px dashed var(--accent-emerald);
+    background-color: rgba(16, 185, 129, 0.01);
+}
+
+.interview-header {
+    font-family: 'Outfit', sans-serif;
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: var(--accent-emerald);
+    margin-bottom: 0.5rem;
+}
+
+.section-instruction {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    margin-bottom: 1.5rem;
+}
+
+.qna-item {
+    margin-bottom: 1rem;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    background-color: var(--bg-tertiary);
+    transition: all 0.2s ease;
+    overflow: hidden;
+}
+
+.qna-item:hover {
+    border-color: var(--accent-emerald);
+}
+
+.qna-question-btn {
+    width: 100%;
+    text-align: left;
+    background: none;
+    border: none;
+    color: var(--text-main);
+    font-family: 'Outfit', sans-serif;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 1.25rem;
+}
+
+.qna-question-btn::after {
+    content: '+';
+    font-size: 1.2rem;
+    color: var(--accent-emerald);
+    transition: transform var(--transition-smooth);
+    margin-left: 1rem;
+}
+
+.qna-question-btn[aria-expanded="true"]::after {
+    content: '-';
+    transform: rotate(180deg);
+}
+
+.qna-answer-panel {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease-out;
+    color: var(--text-muted);
+    font-size: 0.95rem;
+    line-height: 1.6;
+    padding: 0 1.25rem;
+}
+
+.qna-answer-panel.open {
+    max-height: 1000px;
+    padding: 0 1.25rem 1.25rem;
+    border-top: 1px dashed var(--border-color);
+    margin-top: 0.25rem;
+    padding-top: 1rem;
+    color: var(--text-main);
+}
+
+/* Footer styling */
+.workspace-footer {
+    margin-top: auto;
+    padding-top: 2rem;
+    border-top: 1px solid var(--border-color);
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    text-align: center;
+}
+
+/* Responsive Mobile Layout */
+@media (max-width: 992px) {
+    .sidebar {
+        transform: translateX(-100%);
+    }
+    .sidebar.open {
+        transform: translateX(0);
+    }
+    .main-workspace {
+        margin-left: 0;
+        padding: 1.5rem;
+    }
+    .menu-toggle {
+        display: block;
+    }
+    .logo-title-mobile {
+        display: block;
+    }
+    .lesson-meta {
+        font-size: 0.75rem;
+        flex-wrap: wrap;
+    }
+}
+
+/* LMS Interactive Controls Styling */
+/* --accent is already defined in root above as cyan; override if needed */
+
+.action-btn:hover {
+    background: var(--bg-tertiary) !important;
+    border-color: var(--accent) !important;
+}
+
+.action-btn.active {
+    background: var(--bg-accent) !important;
+    border-color: var(--accent) !important;
+    color: var(--accent) !important;
+}
+
+/* Copy Snippet Utility */
+pre {
+    position: relative;
+}
+
+.copy-code-btn {
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    background: var(--bg-tertiary);
+    color: var(--text-main);
+    border: 1px solid var(--border-color);
+    padding: 3px 8px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    border-radius: 4px;
+    cursor: pointer;
+    opacity: 0;
+    transition: opacity 0.2s, background-color 0.2s;
+    user-select: none;
+    z-index: 10;
+}
+
+pre:hover .copy-code-btn {
+    opacity: 1;
+}
+
+.copy-code-btn:hover {
+    background: var(--bg-primary);
+    border-color: var(--accent);
+}
+
+/* Sidebar lists completions and stars indicators */
+.sidebar-link {
+    display: flex !important;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+}
+
+.sidebar-item-indicators {
+    display: flex;
+    gap: 0.25rem;
+    align-items: center;
+    font-size: 0.75rem;
+}
+
+.indicator-star {
+    color: var(--accent-amber);
+}
+
+.indicator-check {
+    color: var(--accent-emerald);
+}
+
+.recently-viewed-item {
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    text-decoration: none;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    transition: all 0.2s;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    cursor: pointer;
+}
+
+.recently-viewed-item:hover {
+    background: var(--bg-tertiary);
+    color: var(--text-main);
+}
+
