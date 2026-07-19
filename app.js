@@ -246,7 +246,7 @@ function renderSidebar() {
         stages[lesson.stage].push(lesson);
     });
 
-    const groupedKeys = Object.keys(stages);
+    const groupedKeys = Object.keys(stages).sort();
     if (groupedKeys.length === 0) {
         sidebarNav.innerHTML = `<div style="padding: 1rem; text-align: center; color: var(--text-muted); font-size: 0.8rem;">No matching modules found.</div>`;
         return;
