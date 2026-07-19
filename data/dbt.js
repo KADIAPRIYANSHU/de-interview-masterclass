@@ -507,6 +507,16 @@ dbt docs generate</code></pre>
                 <li><strong>Semantic Layer:</strong> The dbt Semantic Layer (MetricFlow) API is only available in dbt Cloud paid tiers for external BI tool consumption.</li>
                 <li><strong>Cost:</strong> dbt Core is free. dbt Cloud ranges from free (Developer tier, 1 seat) to Enterprise pricing.</li>
             </ul>
+        
+
+            <h3>Environment Management</h3>
+            <p>Both Core and Cloud support strict environment isolation:</p>
+            <ul>
+                <li><strong>dev:</strong> Isolated developer schemas (e.g., `dbt_pkadia`).</li>
+                <li><strong>qa:</strong> Staging environment for CI/CD testing.</li>
+                <li><strong>prod:</strong> The official production environment.</li>
+            </ul>
+
         `,
         hasDiagram: false,
         hasTable: true,

@@ -44,6 +44,15 @@ window.snowflakeLessons = {
             <p>If a warehouse cluster receives more queries than it can run concurrently, extra queries enter **Statement Queueing**. In a multi-cluster setup, Snowflake automatically spins up a new cluster to absorb the queued queries (concurrency scaling).</p>
             <h3>Query Acceleration Service (QAS)</h3>
             <p>QAS is an account-level feature that dynamically delegates parts of massive table scans to serverless compute resources outside your warehouse. It acts like a temporary burst of CPU to accelerate outliers without needing to scale up the warehouse permanently.</p>
+        
+
+            <h3>Warehouse Sizing & Lifecycle</h3>
+            <ul>
+                <li><strong>Warehouse Sizes:</strong> Range from X-Small (1 credit/hr, 1 server) up to 6X-Large (512 credits/hr, 512 servers). Scaling UP gives more memory for complex joins.</li>
+                <li><strong>Auto-Suspend:</strong> Automatically shuts down the warehouse after N seconds of inactivity to save credits.</li>
+                <li><strong>Auto-Resume:</strong> Automatically wakes the warehouse up when a new query arrives. (Note: there is a slight 1-3 second spin-up latency).</li>
+            </ul>
+
         `,
         hasDiagram: false,
         hasTable: true,
@@ -151,6 +160,14 @@ window.snowflakeLessons = {
             </ul>
             <h3>Dynamic Data Masking</h3>
             <p>A column-level security feature. You create a <code>MASKING POLICY</code> that evaluates the <code>CURRENT_ROLE()</code>. If the role is 'HR', it shows the real value. Otherwise, it shows '***' or 0. This policy is attached directly to the table column.</p>
+        
+
+            <h3>Authentication Methods</h3>
+            <ul>
+                <li><strong>OAuth & External OAuth:</strong> Standard protocol for delegated authorization without sharing credentials. Supports integration with Okta, Azure AD, Ping, etc.</li>
+                <li><strong>Key Pair Authentication:</strong> Uses a 2048-bit RSA key pair (public/private) for highly secure, password-less authentication (often used by service accounts and programmatic clients like Python).</li>
+            </ul>
+
         `,
         hasDiagram: false,
         hasTable: false,
@@ -175,6 +192,14 @@ window.snowflakeLessons = {
                 <li><strong>PIVOT / UNPIVOT:</strong> Converts rows to columns (PIVOT) or columns to rows (UNPIVOT).</li>
                 <li><strong>Recursive CTEs:</strong> Used for hierarchical data (like a Manager/Employee org chart).</li>
             </ul>
+        
+
+            <h3>Additional Advanced SQL Constructs</h3>
+            <ul>
+                <li><strong>RESULT_SCAN():</strong> A table function that returns the result set of a previous command (like returning the output of a DESCRIBE or SHOW command as a queryable table).</li>
+                <li><strong>TABLE Functions:</strong> Functions that return a set of rows instead of a single scalar value. Used extensively in Snowflake for flattening or querying metadata.</li>
+            </ul>
+
         `,
         hasDiagram: false,
         hasTable: false,
@@ -243,6 +268,14 @@ window.snowflakeLessons = {
                 <li>Standard Edition: Limit of 1 day maximum.</li>
                 <li>Enterprise Edition: Up to 90 days configurable per object.</li>
             </ul>
+        
+
+            <h3>Object Restoration & Retention Limits</h3>
+            <ul>
+                <li><strong>Restore Objects:</strong> You can completely <code>RESTORE DATABASE</code>, <code>RESTORE SCHEMA</code>, or <code>RESTORE TABLE</code> if they were dropped, instantly recovering all underlying data without using backups.</li>
+                <li><strong>Data Retention Limits:</strong> Standard Edition is hard-limited to 1 day of Time Travel. Enterprise Edition allows configuring the retention period up to 90 days.</li>
+            </ul>
+
         `,
         hasDiagram: false,
         hasTable: false,
@@ -289,6 +322,15 @@ window.snowflakeLessons = {
             <p>VARIANT is Snowflake's native data type that stores JSON, Avro, ORC, and Parquet natively while maintaining internal columnar compression.</p>
             <h3>The FLATTEN Function</h3>
             <p>FLATTEN is a table function that explodes an array (like a list of products in a single JSON cart) into multiple rows so you can join them against standard tables. <code>LATERAL FLATTEN</code> allows you to reference columns from the main table alongside the exploded rows.</p>
+        
+
+            <h3>Advanced Object & Array Construction</h3>
+            <ul>
+                <li><strong>OBJECT_CONSTRUCT():</strong> Builds a Snowflake OBJECT from key-value pairs. Useful for converting relational columns into a single JSON blob.</li>
+                <li><strong>ARRAY_CONSTRUCT():</strong> Builds a JSON array from a list of inputs.</li>
+                <li><strong>ARRAY_APPEND():</strong> Appends a new element to the end of an existing array.</li>
+            </ul>
+
         `,
         hasDiagram: false,
         hasTable: false,
@@ -438,6 +480,13 @@ window.snowflakeLessons = {
                 <li><strong>SnowSQL:</strong> Command-line client for executing SQL queries, managing stages (PUT/GET), and running automation shell scripts.</li>
                 <li><strong>Connectors:</strong> Official library packages (Python, JDBC, ODBC, Spark, SQLAlchemy) that enable third-party tools to connect and query Snowflake.</li>
             </ul>
+        
+
+            <h3>Advanced Integrations</h3>
+            <ul>
+                <li><strong>Kafka Connector:</strong> The Snowflake Connector for Kafka natively streams data directly from Kafka topics into Snowflake tables (often using Snowpipe Streaming under the hood).</li>
+            </ul>
+
         `,
         hasDiagram: false,
         hasTable: false,

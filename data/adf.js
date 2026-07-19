@@ -242,6 +242,15 @@ window.adfLessons = {
                 <li><strong>Pagination:</strong> Fetching data in chunks (pages) using token links or offset indices. ADF Data Flows can handle pagination properties natively.</li>
                 <li><strong>Rate Limits:</strong> APIs limit queries per minute. You must configure the Copy/Web activity **Retry** parameters to back off on 429 (Too Many Requests) errors.</li>
             </ul>
+        
+
+            <h3>Advanced REST API Capabilities</h3>
+            <ul>
+                <li><strong>Pagination:</strong> ADF supports absolute url, next page URL, and RFC 5988 header pagination out of the box to loop through paginated endpoints.</li>
+                <li><strong>OAuth Authentication:</strong> Connect securely using OAuth2 client credentials flow directly in the Linked Service.</li>
+                <li><strong>Retry:</strong> Web Activities support configurable retry logic for transient API failures.</li>
+            </ul>
+
         `,
         hasDiagram: false,
         hasTable: false,
@@ -386,6 +395,16 @@ window.adfLessons = {
                 <li><strong>Event Trigger:</strong> Runs dynamically when files land in a Blob Storage stage (BlobCreated, BlobDeleted).</li>
                 <li><strong>Dependency Trigger:</strong> A Tumbling Window trigger can depend on another Tumbling Window trigger in a different pipeline, ensuring sequential processing (e.g. waiting for staging pipeline before running data warehouse load).</li>
             </ul>
+        
+
+            <h3>Detailed Trigger Types</h3>
+            <ul>
+                <li><strong>Schedule Trigger:</strong> Runs pipelines on a wall-clock schedule (e.g., daily at 2 AM).</li>
+                <li><strong>Event Trigger:</strong> Runs in response to a Storage Event (like Blob created/deleted).</li>
+                <li><strong>Tumbling Window Trigger:</strong> Fires at a periodic interval and maintains state. If a run fails, it can automatically retry. It also supports passing the start/end window times directly into the pipeline.</li>
+                <li><strong>Manual Trigger:</strong> Triggered on-demand via the UI or REST API.</li>
+            </ul>
+
         `,
         hasDiagram: false,
         hasTable: true,
