@@ -512,13 +512,40 @@ CREATE TASK child_task
   AFTER load_orders_task
 AS
   CALL aggregate_daily_sales();</code></pre>
+            <h3>Serverless Tasks</h3>
+            <p>Instead of a warehouse, Tasks can use <strong>Serverless compute</strong> — Snowflake manages and auto-scales compute automatically. You pay per-second of actual compute used, avoiding idle warehouse billing between task runs. This is the recommended default for most task workloads.</p>
+            <pre><code>-- Serverless Task (no WAREHOUSE clause — Snowflake manages compute)
+CREATE OR REPLACE TASK serverless_load_task
+  USER_TASK_MANAGED_INITIAL_WAREHOUSE_SIZE = 'SMALL'
+  SCHEDULE = '5 MINUTE'
+  WHEN SYSTEM$STREAM_HAS_DATA('orders_stream')
+AS
+  INSERT INTO processed_orders
+  SELECT order_id, customer_id, CURRENT_TIMESTAMP()
+  FROM orders_stream
+  WHERE METADATA$ACTION = 'INSERT';</code></pre>
+            <h3>Stream Staleness</h3>
+            <p>A stream becomes <strong>stale</strong> if it is not consumed within the source table's <strong>data retention period</strong> (default 1 day, up to 90 days on Enterprise). Once stale, the stream must be recreated — all unread change data is lost. Monitor stream health using <code>SHOW STREAMS</code> and the <code>STALE</code> column.</p>
+            <pre><code>-- Check if a stream is stale
+SHOW STREAMS LIKE 'orders_stream';
+-- Look at STALE column: TRUE = stream has become stale
+
+-- View task execution history and errors
+SELECT *
+FROM TABLE(INFORMATION_SCHEMA.TASK_HISTORY(
+  TASK_NAME => 'LOAD_ORDERS_TASK',
+  SCHEDULED_TIME_RANGE_START => DATEADD(HOUR, -24, CURRENT_TIMESTAMP())
+))
+ORDER BY SCHEDULED_TIME DESC;</code></pre>
         `,
         hasDiagram: false,
         hasTable: false,
         interviewQuestions: [
             { question: "What is the difference between a Standard Stream and an Append-Only Stream?", answer: "A Standard Stream captures all DML changes — inserts, updates (represented as a DELETE+INSERT pair), and deletes. An Append-Only Stream captures only new INSERT rows, which is more efficient for append-only event or log tables where rows are never modified after ingestion." },
             { question: "Why must a Task be RESUMED before it executes?", answer: "Tasks are created in SUSPENDED state by default to prevent accidental execution on misconfigured pipelines. You must explicitly run ALTER TASK <name> RESUME after verifying the SQL and schedule are correct." },
-            { question: "How does WHEN SYSTEM$STREAM_HAS_DATA work in a Task?", answer: "It is a conditional filter that prevents the Task from executing when the stream has no new records. Without it, the Task runs on every schedule tick even if there is nothing to process, wasting warehouse credits." }
+            { question: "How does WHEN SYSTEM$STREAM_HAS_DATA work in a Task?", answer: "It is a conditional filter that prevents the Task from executing when the stream has no new records. Without it, the Task runs on every schedule tick even if there is nothing to process, wasting warehouse credits." },
+            { question: "What is the advantage of Serverless Tasks over Warehouse-based Tasks?", answer: "Serverless Tasks use Snowflake-managed auto-scaling compute billed per second of actual execution. Warehouse Tasks keep a virtual warehouse running between task executions, incurring idle credits. For tasks that run infrequently or have variable compute needs, Serverless Tasks are significantly cheaper and simpler to manage." },
+            { question: "What causes a Snowflake Stream to become stale, and how do you prevent it?", answer: "A stream becomes stale when it is not consumed within the source table's data retention period (default 1 day). Unconsumed changes older than the retention window are purged, making the stream unreadable. Prevent staleness by ensuring Tasks consuming the stream run at least once per day, or by extending the source table's DATA_RETENTION_TIME_IN_DAYS to match your processing frequency." }
         ]
     },
     "1.20": {
@@ -548,25 +575,43 @@ GROUP BY sale_date, product_id;</code></pre>
             </ul>
             <h3>Limitations</h3>
             <ul>
-                <li>Cannot contain JOINs, non-deterministic functions (e.g. CURRENT_TIMESTAMP), subqueries, or window functions.</li>
-                <li>Only available on Enterprise edition and above.</li>
-                <li>Refresh credit is billed to the account — MVs on high-churn base tables can become expensive.</li>
+                <li>Cannot contain JOINs, non-deterministic functions (e.g. CURRENT_TIMESTAMP), subqueries, or window funct                 <li>Refresh credit is billed to the account — MVs on high-churn base tables can become expensive.</li>
             </ul>
+            <h3>Dynamic Tables (Modern Alternative)</h3>
+            <p><strong>Dynamic Tables</strong> are a newer Snowflake feature that address MV limitations. Unlike MVs, Dynamic Tables support JOINs, window functions, and complex transformations. They use a <strong>target lag</strong> to define how fresh the data must be (e.g., 1 minute, 1 hour), and Snowflake automatically triggers incremental refreshes to meet the lag target.</p>
+            <pre><code>-- Dynamic Table with JOIN support (not possible in MV)
+CREATE OR REPLACE DYNAMIC TABLE dt_enriched_orders
+  TARGET_LAG = '1 hour'
+  WAREHOUSE = COMPUTE_WH
+AS
+SELECT
+    o.order_id,
+    o.amount,
+    c.customer_name,
+    c.region
+FROM raw_orders o
+JOIN dim_customers c ON o.customer_id = c.customer_id;</code></pre>
+            <p>Use <strong>MVs</strong> for simple aggregations on single tables with sub-second read latency requirements. Use <strong>Dynamic Tables</strong> for complex transformations with JOINs where you can tolerate a small lag (minutes).</p>
         `,
         hasDiagram: false,
         hasTable: true,
         tableData: {
-            headers: ["Feature", "Regular View", "Materialized View"],
+            headers: ["Feature", "Regular View", "Materialized View", "Dynamic Table"],
             rows: [
-                ["Storage Cost", "None", "Yes — stores result set"],
-                ["Query Speed", "Slow (re-executes)", "Fast (pre-computed)"],
-                ["Auto Refresh", "No", "Yes (background service)"],
-                ["Supports JOINs", "Yes", "No"]
+                ["Storage Cost", "None", "Yes", "Yes"],
+                ["Query Speed", "Slow (re-executes)", "Fast (pre-computed)", "Fast (pre-computed)"],
+                ["Supports JOINs", "Yes", "No", "Yes"],
+                ["Auto Refresh", "No", "Yes (on DML)", "Yes (target lag)"],
+                ["Window Functions", "Yes", "No", "Yes"],
+                ["Edition Required", "All", "Enterprise+", "Enterprise+"]
             ]
         },
         interviewQuestions: [
             { question: "When would you choose a Materialized View over a regular View?", answer: "Use a Materialized View when a complex aggregation or filter is queried frequently by BI tools and the base table changes infrequently. The MV pre-computes the result so BI queries get near-instant response times. Avoid MVs on high-churn tables where refresh costs exceed query savings." },
-            { question: "What is query rewrite in the context of Materialized Views?", answer: "Query rewrite is when Snowflake's optimizer automatically redirects a query against the base table to the Materialized View if the MV can satisfy the query. The query author does not need to reference the MV explicitly — they query the base table and Snowflake handles the routing transparently." }
+            { question: "What is query rewrite in the context of Materialized Views?", answer: "Query rewrite is when Snowflake's optimizer automatically redirects a query against the base table to the Materialized View if the MV can satisfy the query. The query author does not need to reference the MV explicitly — they query the base table and Snowflake handles the routing transparently." },
+            { question: "When would you use a Dynamic Table instead of a Materialized View?", answer: "Use a Dynamic Table when your transformation requires JOINs, window functions, or complex multi-table logic that a Materialized View cannot support. Dynamic Tables accept any SQL including JOINs and window functions, and refresh incrementally based on a target lag setting. Use Materialized Views only for simple single-table aggregations where sub-second read latency is critical." }
+        ]
+�� they query the base table and Snowflake handles the routing transparently." }
         ]
     },
     "1.21": {
