@@ -187,9 +187,9 @@ window.devopsObsLessons = {
             }
         ]
     },
-    "1.9": {
-        id: "1.9",
-        stage: "Stage 2: Advanced Deployment Patterns",
+    "2.6": {
+        id: "2.6",
+        stage: "Stage 2: Observability & Monitoring",
         module: "Blue/Green & Canary Deployments",
         title: "Blue/Green & Canary Deployments for Data Pipelines",
         subtitle: "Deploy data pipeline changes safely with zero downtime and instant rollback capability.",

@@ -476,9 +476,9 @@ window.adfLessons = {
             }
         ]
     },
-    "2.7": {
-        id: "2.7",
-        stage: "Stage 3: Microsoft Fabric & Advanced Patterns",
+    "4.4": {
+        id: "4.4",
+        stage: "Stage 4: Operations & Alerts",
         module: "Fabric Data Factory",
         title: "Fabric Data Factory vs. Azure Data Factory",
         subtitle: "Understand the architectural differences between ADF and its SaaS successor inside Microsoft Fabric.",
@@ -519,9 +519,9 @@ window.adfLessons = {
             { question: "Can Fabric Data Factory replace ADF for on-premises data ingestion?", answer: "Not directly today. Fabric Data Factory does not support Self-Hosted Integration Runtime for on-premises sources behind firewalls. ADF with SHIR remains the recommended approach for hybrid on-premises to cloud ingestion scenarios until Fabric adds equivalent gateway support." }
         ]
     },
-    "2.8": {
-        id: "2.8",
-        stage: "Stage 3: Microsoft Fabric & Advanced Patterns",
+    "4.5": {
+        id: "4.5",
+        stage: "Stage 4: Operations & Alerts",
         module: "Azure Function Activity",
         title: "Azure Function Activity in ADF",
         subtitle: "Trigger serverless custom code as part of ADF pipeline control flow.",
@@ -561,9 +561,9 @@ public static async Task Run(HttpRequest req) {
             { question: "How do you pass pipeline parameters to an Azure Function Activity?", answer: "Set the Body field of the Azure Function Activity to a JSON object using dynamic content expressions, for example: @{pipeline().parameters.runDate}. The Azure Function receives this JSON in the request body and can parse it to drive processing logic." }
         ]
     },
-    "2.9": {
-        id: "2.9",
-        stage: "Stage 3: Microsoft Fabric & Advanced Patterns",
+    "4.6": {
+        id: "4.6",
+        stage: "Stage 4: Operations & Alerts",
         module: "Batching Patterns",
         title: "Lookup + ForEach Batching for Large Datasets",
         subtitle: "Process more than 5,000 rows from Lookup using chunking and batch strategies.",

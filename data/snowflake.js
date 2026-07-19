@@ -467,9 +467,9 @@ window.snowflakeLessons = {
             { question: "What is the Snowflake Native App Framework?", answer: "It is a distribution model allowing developers to build applications that run directly inside the customer's Snowflake account boundary, securing proprietary source code while protecting consumer data." }
         ]
     },
-    "1.19": {
-        id: "1.19",
-        stage: "Stage 4: Automation & Cost",
+    "4.4": {
+        id: "4.4",
+        stage: "Stage 4: Ecosystem & Advanced",
         module: "Streams & Tasks",
         title: "Streams & Tasks (CDC + Orchestration)",
         subtitle: "Capture incremental changes and automate pipeline execution natively inside Snowflake.",
@@ -548,9 +548,9 @@ ORDER BY SCHEDULED_TIME DESC;</code></pre>
             { question: "What causes a Snowflake Stream to become stale, and how do you prevent it?", answer: "A stream becomes stale when it is not consumed within the source table's data retention period (default 1 day). Unconsumed changes older than the retention window are purged, making the stream unreadable. Prevent staleness by ensuring Tasks consuming the stream run at least once per day, or by extending the source table's DATA_RETENTION_TIME_IN_DAYS to match your processing frequency." }
         ]
     },
-    "1.20": {
-        id: "1.20",
-        stage: "Stage 4: Automation & Cost",
+    "4.5": {
+        id: "4.5",
+        stage: "Stage 4: Ecosystem & Advanced",
         module: "Materialized Views",
         title: "Materialized Views",
         subtitle: "Pre-compute and cache complex query results for instant response times.",
@@ -612,9 +612,9 @@ JOIN dim_customers c ON o.customer_id = c.customer_id;</code></pre>
             { question: "When would you use a Dynamic Table instead of a Materialized View?", answer: "Use a Dynamic Table when your transformation requires JOINs, window functions, or complex multi-table logic that a Materialized View cannot support. Dynamic Tables accept any SQL including JOINs and window functions, and refresh incrementally based on a target lag setting. Use Materialized Views only for simple single-table aggregations where sub-second read latency is critical." }
         ]
     },
-    "1.21": {
-        id: "1.21",
-        stage: "Stage 4: Automation & Cost",
+    "4.6": {
+        id: "4.6",
+        stage: "Stage 4: Ecosystem & Advanced",
         module: "Resource Monitors",
         title: "Resource Monitors",
         subtitle: "Set credit limits and automated alerts to control warehouse spend.",
@@ -655,9 +655,9 @@ ALTER WAREHOUSE COMPUTE_WH SET RESOURCE_MONITOR = monthly_budget;</code></pre>
             { question: "Can a Resource Monitor prevent all credit overruns?", answer: "Not completely. There is a small lag between credit consumption and monitoring detection. It is also possible for a warehouse to slightly exceed the quota between measurement intervals. Resource Monitors reduce overruns significantly but should be combined with warehouse auto-suspend policies for complete control." }
         ]
     },
-    "1.22": {
-        id: "1.22",
-        stage: "Stage 4: Automation & Cost",
+    "4.7": {
+        id: "4.7",
+        stage: "Stage 4: Ecosystem & Advanced",
         module: "Tags for Cost Allocation",
         title: "Snowflake Tags & Cost Allocation",
         subtitle: "Label objects with metadata tags and trace credits back to business units.",

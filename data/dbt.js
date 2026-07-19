@@ -438,9 +438,9 @@ window.dbtLessons = {
             }
         ]
     },
-    "3.5": {
-        id: "3.5",
-        stage: "Stage 3: Governance & Ecosystem",
+    "4.4": {
+        id: "4.4",
+        stage: "Stage 4: Enterprise Ops & CI/CD",
         module: "Exposures",
         title: "dbt Exposures",
         subtitle: "Document and track downstream consumers of your dbt models in dashboards and ML pipelines.",
@@ -481,9 +481,9 @@ exposures:
             { question: "How do you use Exposures for impact analysis in practice?", answer: "Run 'dbt ls --select +exposure:my_exposure_name' to list all models that the exposure depends on. If you are modifying 'fct_sales', run 'dbt ls --select fct_sales+' to see all downstream models and exposures that reference it, allowing you to assess blast radius before deploying." }
         ]
     },
-    "3.6": {
-        id: "3.6",
-        stage: "Stage 3: Governance & Ecosystem",
+    "4.5": {
+        id: "4.5",
+        stage: "Stage 4: Enterprise Ops & CI/CD",
         module: "dbt Cloud vs Core",
         title: "dbt Cloud vs. dbt Core",
         subtitle: "Understand the key differences and when to use each deployment model.",
@@ -525,9 +525,9 @@ dbt docs generate</code></pre>
             { question: "What is dbt Slim CI and how does it reduce build times?", answer: "Slim CI uses dbt's state comparison feature to run only models that have changed since the last successful production run. By comparing the current project against the production manifest.json artifact, dbt identifies modified models and their downstream dependencies, skipping unchanged models entirely. This can reduce CI runtime from 60 minutes to under 5 minutes for large projects." }
         ]
     },
-    "3.7": {
-        id: "3.7",
-        stage: "Stage 3: Governance & Ecosystem",
+    "4.6": {
+        id: "4.6",
+        stage: "Stage 4: Enterprise Ops & CI/CD",
         module: "Semantic Layer Consumption",
         title: "dbt Semantic Layer & Consumption Tools",
         subtitle: "Define metrics once in dbt and query them from any BI or analytics tool.",

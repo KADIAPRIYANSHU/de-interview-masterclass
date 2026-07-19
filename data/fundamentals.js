@@ -314,9 +314,9 @@ window.fundamentalsLessons = {
             }
         ]
     },
-    "1.11": {
-        id: "1.11",
-        stage: "Stage 2: Production Engineering",
+    "2.6": {
+        id: "2.6",
+        stage: "Stage 2: Advanced Modeling & Quality",
         module: "Data Contracts",
         title: "Data Contracts (Organizational Practice)",
         subtitle: "Formal agreements between data producers and consumers that define schema, SLAs, and quality guarantees.",
@@ -365,9 +365,9 @@ quality:
             { question: "How do you handle breaking schema changes under a Data Contract?", answer: "Breaking changes require a major version bump and a migration period. The producer publishes the new contract version (e.g., orders_v3) alongside the old one. Consumers migrate on their own timeline. The old version is deprecated with a sunset date communicated in advance. This prevents consumers from breaking silently when producers evolve their schemas." }
         ]
     },
-    "1.12": {
-        id: "1.12",
-        stage: "Stage 2: Production Engineering",
+    "2.7": {
+        id: "2.7",
+        stage: "Stage 2: Advanced Modeling & Quality",
         module: "Idempotency Patterns",
         title: "Idempotency in Data Pipelines",
         subtitle: "Design pipelines that produce identical results regardless of how many times they run.",
@@ -406,9 +406,9 @@ WHERE event_date = '2026-07-19';</code></pre>
             { question: "How would you make a daily aggregation pipeline idempotent?", answer: "Use partition overwrite: before inserting daily aggregates, DELETE WHERE load_date = target_date, then INSERT the freshly computed aggregates for that date. This ensures the pipeline can be re-run for any historical date without accumulating duplicate rows, and the final state is always correct regardless of how many times it ran." }
         ]
     },
-    "1.13": {
-        id: "1.13",
-        stage: "Stage 2: Production Engineering",
+    "2.8": {
+        id: "2.8",
+        stage: "Stage 2: Advanced Modeling & Quality",
         module: "Backfill Strategies",
         title: "Backfill Strategies for Data Pipelines",
         subtitle: "Efficiently reprocess historical data after schema changes, logic fixes, or new pipeline deployments.",
