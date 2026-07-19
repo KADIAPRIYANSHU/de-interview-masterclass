@@ -437,6 +437,137 @@ window.dbtLessons = {
                 answer: "Dagster parses the 'manifest.json' file and treats each model as an independent, observable software asset, allowing metadata and test checks to be managed individually rather than running dbt as a single opaque block."
             }
         ]
+    },
+    "3.5": {
+        id: "3.5",
+        stage: "Stage 3: Governance & Ecosystem",
+        module: "Exposures",
+        title: "dbt Exposures",
+        subtitle: "Document and track downstream consumers of your dbt models in dashboards and ML pipelines.",
+        duration: "🕒 10 min read",
+        difficulty: "Intermediate",
+        theory: `
+            <h3>What are Exposures?</h3>
+            <p><strong>Exposures</strong> are dbt metadata objects that document the downstream consumers of your models — BI dashboards, ML models, APIs, and other data products. They create a complete lineage picture showing not just how raw data becomes models, but how models are consumed externally.</p>
+            <pre><code>-- exposures.yml
+exposures:
+  - name: weekly_sales_dashboard
+    type: dashboard
+    maturity: high
+    url: https://metabase.company.com/dashboard/12
+    description: |
+      Tracks weekly revenue by region.
+      Used by the Sales leadership team every Monday.
+    owner:
+      name: Priyanshu Kadia
+      email: priyanshu@company.com
+    depends_on:
+      - ref('fct_sales')
+      - ref('dim_customers')</code></pre>
+            <h3>Why Exposures Matter</h3>
+            <ul>
+                <li><strong>Impact analysis:</strong> When you modify a source model, dbt can show which downstream dashboards and ML pipelines depend on it, helping you assess risk before deploying.</li>
+                <li><strong>Documentation:</strong> Exposures appear in dbt Docs as nodes in the DAG, showing the full data lineage from raw sources through models to business outputs.</li>
+                <li><strong>Team ownership:</strong> Each exposure has an owner field, making it clear who to notify when upstream models change.</li>
+                <li><strong>Freshness SLAs:</strong> You can specify a maturity level (low/medium/high) to indicate business criticality and set expectations for data freshness.</li>
+            </ul>
+            <h3>Exposure Types</h3>
+            <p>dbt supports the following exposure types: <code>dashboard</code>, <code>notebook</code>, <code>analysis</code>, <code>ml</code>, <code>application</code>. The type is metadata-only and does not change dbt's build behavior.</p>
+        `,
+        hasDiagram: false,
+        hasTable: false,
+        interviewQuestions: [
+            { question: "What problem do dbt Exposures solve that model YAML alone cannot?", answer: "Model YAML documents the model itself but not its consumers. Exposures complete the lineage by documenting which dashboards, ML models, and applications depend on each dbt model. Without Exposures, you cannot perform impact analysis — you don't know which business outputs break when you modify a model." },
+            { question: "How do you use Exposures for impact analysis in practice?", answer: "Run 'dbt ls --select +exposure:my_exposure_name' to list all models that the exposure depends on. If you are modifying 'fct_sales', run 'dbt ls --select fct_sales+' to see all downstream models and exposures that reference it, allowing you to assess blast radius before deploying." }
+        ]
+    },
+    "3.6": {
+        id: "3.6",
+        stage: "Stage 3: Governance & Ecosystem",
+        module: "dbt Cloud vs Core",
+        title: "dbt Cloud vs. dbt Core",
+        subtitle: "Understand the key differences and when to use each deployment model.",
+        duration: "🕒 12 min read",
+        difficulty: "Beginner to Intermediate",
+        theory: `
+            <h3>dbt Core</h3>
+            <p><strong>dbt Core</strong> is the open-source Python library installed via pip. It compiles and runs dbt projects from your local machine or CI/CD environment. It has no built-in UI, scheduler, or cloud state management.</p>
+            <pre><code>pip install dbt-snowflake
+dbt run --profiles-dir ~/.dbt
+dbt test
+dbt docs generate</code></pre>
+            <h3>dbt Cloud</h3>
+            <p><strong>dbt Cloud</strong> is the managed SaaS platform from dbt Labs that wraps dbt Core with a web IDE, job scheduler, environment management, audit logs, SSO, and the Semantic Layer API.</p>
+            <h3>Key Differences</h3>
+            <ul>
+                <li><strong>Scheduler:</strong> dbt Core has none — you need Airflow, Dagster, or a cron job. dbt Cloud has a built-in job scheduler with cron support and run history.</li>
+                <li><strong>IDE:</strong> dbt Core uses any text editor. dbt Cloud has a browser-based IDE with SQL preview, lineage explorer, and git integration.</li>
+                <li><strong>Environments:</strong> dbt Core manages environments via profiles.yml manually. dbt Cloud manages development, staging, and production environments with isolated credentials.</li>
+                <li><strong>CI/CD:</strong> dbt Core integrates with GitHub Actions / Azure DevOps manually. dbt Cloud has native Slim CI (runs only changed models using state comparison).</li>
+                <li><strong>Semantic Layer:</strong> The dbt Semantic Layer (MetricFlow) API is only available in dbt Cloud paid tiers for external BI tool consumption.</li>
+                <li><strong>Cost:</strong> dbt Core is free. dbt Cloud ranges from free (Developer tier, 1 seat) to Enterprise pricing.</li>
+            </ul>
+        `,
+        hasDiagram: false,
+        hasTable: true,
+        tableData: {
+            headers: ["Feature", "dbt Core", "dbt Cloud"],
+            rows: [
+                ["Scheduler", "No (external tool needed)", "Yes (built-in)"],
+                ["Web IDE", "No", "Yes"],
+                ["Slim CI", "Manual setup", "Yes (native)"],
+                ["Semantic Layer API", "No", "Yes (paid tiers)"],
+                ["Cost", "Free (open source)", "Free tier + paid plans"]
+            ]
+        },
+        interviewQuestions: [
+            { question: "When would you choose dbt Core over dbt Cloud in production?", answer: "Choose dbt Core when your organization uses Airflow or Dagster for orchestration (avoiding dual schedulers), when cost is a constraint on large teams, or when you need full control over environment configuration. dbt Cloud is better when you want a unified platform with a built-in scheduler, web IDE, and Slim CI without managing external orchestration infrastructure." },
+            { question: "What is dbt Slim CI and how does it reduce build times?", answer: "Slim CI uses dbt's state comparison feature to run only models that have changed since the last successful production run. By comparing the current project against the production manifest.json artifact, dbt identifies modified models and their downstream dependencies, skipping unchanged models entirely. This can reduce CI runtime from 60 minutes to under 5 minutes for large projects." }
+        ]
+    },
+    "3.7": {
+        id: "3.7",
+        stage: "Stage 3: Governance & Ecosystem",
+        module: "Semantic Layer Consumption",
+        title: "dbt Semantic Layer & Consumption Tools",
+        subtitle: "Define metrics once in dbt and query them from any BI or analytics tool.",
+        duration: "🕒 12 min read",
+        difficulty: "Advanced",
+        theory: `
+            <h3>The Semantic Layer Problem</h3>
+            <p>Without a semantic layer, every BI tool, notebook, and API independently defines the same metric (e.g. 'revenue') with slightly different SQL logic, causing inconsistent numbers across reports. The <strong>dbt Semantic Layer</strong> solves this by defining metrics centrally in dbt and exposing them through a single querying API.</p>
+            <h3>MetricFlow</h3>
+            <p><strong>MetricFlow</strong> is the underlying engine powering the dbt Semantic Layer. You define metrics, measures, entities, and dimensions in YAML, and MetricFlow compiles them into optimized SQL at query time.</p>
+            <pre><code>-- metrics.yml
+metrics:
+  - name: total_revenue
+    label: Total Revenue
+    description: Gross revenue before refunds
+    type: simple
+    type_params:
+      measure: revenue_amount
+    filter: |
+      {{ Dimension('order__status') }} = 'completed'</code></pre>
+            <h3>Consumption Interfaces</h3>
+            <ul>
+                <li><strong>dbt Cloud Semantic Layer API:</strong> GraphQL and JDBC endpoints that BI tools query directly.</li>
+                <li><strong>Native BI integrations:</strong> Tableau, Looker, Power BI, and Hex can connect natively via the Semantic Layer API, fetching metrics without raw SQL.</li>
+                <li><strong>Python SDK:</strong> Data scientists query metrics in Jupyter notebooks using the dbt-sl-sdk package.</li>
+                <li><strong>dbt CLI:</strong> 'dbt sl query --metrics total_revenue --group-by metric_time__month' for ad-hoc metric queries.</li>
+            </ul>
+            <h3>Key Benefits</h3>
+            <ul>
+                <li>Single source of truth for metric definitions — change once in dbt, reflects everywhere.</li>
+                <li>Business users query metrics without writing SQL — BI tools fetch pre-defined dimensions and measures.</li>
+                <li>Governance: metric definitions are version-controlled in Git alongside the models that power them.</li>
+            </ul>
+        `,
+        hasDiagram: false,
+        hasTable: false,
+        interviewQuestions: [
+            { question: "What is the core problem the dbt Semantic Layer solves?", answer: "It eliminates metric inconsistency caused by each BI tool defining the same business metric independently with different SQL logic. By centralizing metric definitions in dbt using MetricFlow, all downstream tools (Tableau, Looker, Python notebooks) query the same pre-defined metric logic through a single API, ensuring every report shows the same number." },
+            { question: "What is the difference between a Measure and a Metric in dbt MetricFlow?", answer: "A Measure is a raw aggregation defined on a semantic model (e.g. SUM(revenue_amount)). A Metric is a higher-level business concept built on top of measures, optionally with filters, ratios, or cumulative windows applied. Multiple metrics can reference the same underlying measure with different filters or time grains." }
+        ]
     }
 };
 

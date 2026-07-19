@@ -186,6 +186,78 @@ window.devopsObsLessons = {
                 answer: "A Data Catalog indexes metadata from all databases and stages, acts as a searchable dictionary for business users, tracks data lineage, and classifies sensitive data (PII) to enforce security masking policies automatically."
             }
         ]
+    },
+    "1.9": {
+        id: "1.9",
+        stage: "Stage 2: Advanced Deployment Patterns",
+        module: "Blue/Green & Canary Deployments",
+        title: "Blue/Green & Canary Deployments for Data Pipelines",
+        subtitle: "Deploy data pipeline changes safely with zero downtime and instant rollback capability.",
+        duration: "🕒 15 min read",
+        difficulty: "Advanced",
+        theory: `
+            <h3>Why Deployment Strategies Matter for Data</h3>
+            <p>Unlike application deployments where a bug is quickly visible and reversible, data pipeline bugs silently corrupt datasets that downstream reports and ML models depend on. <strong>Blue/Green</strong> and <strong>Canary</strong> strategies reduce this risk by enabling parallel validation before production cutover.</p>
+            <h3>Blue/Green Deployment</h3>
+            <p>In a <strong>Blue/Green deployment</strong>, you maintain two identical pipeline environments: <strong>Blue</strong> (current production) and <strong>Green</strong> (new version). You deploy the new pipeline to Green, validate it against production data, then atomically switch all traffic/consumers to Green. Blue remains on standby for instant rollback.</p>
+            <ul>
+                <li><strong>Step 1:</strong> Deploy new pipeline version to Green environment writing to a <code>_green</code> target table or schema.</li>
+                <li><strong>Step 2:</strong> Run Green for 1-7 days in parallel with Blue, comparing row counts, aggregates, and business KPIs between the two outputs.</li>
+                <li><strong>Step 3:</strong> Swap the production alias/view to point to the Green table. Downstream consumers (BI tools, APIs) automatically read from Green without reconfiguration.</li>
+                <li><strong>Step 4:</strong> Monitor Green for 24-48 hours. If issues arise, swap the alias back to Blue instantly — zero data loss.</li>
+            </ul>
+            <pre><code>-- Blue/Green swap using a view alias
+-- Step 1: Both pipelines run in parallel
+CREATE OR REPLACE VIEW prod.orders AS SELECT * FROM prod.orders_blue;  -- production
+CREATE OR REPLACE VIEW prod.orders_green_view AS SELECT * FROM prod.orders_green;  -- validation
+
+-- Step 2: Validate green output matches blue
+SELECT COUNT(*) FROM prod.orders_blue;   -- expected: 10,000,000
+SELECT COUNT(*) FROM prod.orders_green;  -- must match
+
+-- Step 3: Atomic cutover
+CREATE OR REPLACE VIEW prod.orders AS SELECT * FROM prod.orders_green;
+
+-- Step 4: Rollback if needed (instant)
+CREATE OR REPLACE VIEW prod.orders AS SELECT * FROM prod.orders_blue;</code></pre>
+            <h3>Canary Deployment</h3>
+            <p>A <strong>Canary deployment</strong> routes a small percentage of data through the new pipeline version to validate correctness before full rollout. This is useful for high-volume streaming pipelines where running two full copies in parallel is too expensive.</p>
+            <ul>
+                <li><strong>Routing strategy:</strong> Hash the primary key (e.g. customer_id) and route 5% of records to the new pipeline version.</li>
+                <li><strong>Validation:</strong> Compare metrics from the canary output against the same cohort processed by the production pipeline.</li>
+                <li><strong>Gradual rollout:</strong> Increase canary percentage from 5% → 20% → 50% → 100% as confidence grows.</li>
+            </ul>
+            <pre><code>-- Canary routing in Snowflake Streams + Tasks
+-- Route 5% of orders to new pipeline by hash
+INSERT INTO orders_new_pipeline
+SELECT * FROM orders_stream
+WHERE HASH(order_id) % 100 < 5;  -- 5% canary
+
+INSERT INTO orders_prod_pipeline
+SELECT * FROM orders_stream
+WHERE HASH(order_id) % 100 >= 5;  -- 95% production</code></pre>
+            <h3>Key Differences</h3>
+            <ul>
+                <li><strong>Blue/Green:</strong> Full parallel copy, instant atomic cutover. Higher cost but maximum safety. Best for batch pipelines and schema migrations.</li>
+                <li><strong>Canary:</strong> Partial traffic split, gradual rollout. Lower cost. Best for high-volume streaming pipelines where full duplication is expensive.</li>
+            </ul>
+        `,
+        hasDiagram: false,
+        hasTable: true,
+        tableData: {
+            headers: ["Dimension", "Blue/Green", "Canary"],
+            rows: [
+                ["Traffic split", "0% / 100% (hard cutover)", "Gradual % increase"],
+                ["Cost", "2x compute during validation", "~5-50% overhead"],
+                ["Rollback speed", "Instant (alias swap)", "Gradual re-routing"],
+                ["Best for", "Batch pipelines, schema changes", "High-volume streaming"],
+                ["Validation period", "Days to weeks", "Hours to days"]
+            ]
+        },
+        interviewQuestions: [
+            { question: "How would you implement a Blue/Green deployment for a daily batch pipeline in Snowflake?", answer: "Run the new pipeline version writing to a _green schema in parallel with the production _blue schema for 3-7 days. Compare row counts, SUM aggregates on key metrics, and null rates between blue and green daily. Once validated, swap the production view alias to point to the green schema. If issues arise within 48 hours, flip the view alias back to blue for an instant zero-data-loss rollback." },
+            { question: "When would you choose Canary over Blue/Green for a data pipeline?", answer: "Choose Canary when running two full pipeline copies is cost-prohibitive — typically high-volume streaming pipelines (millions of events per hour). By routing only 5-10% of traffic to the new version, you validate correctness with minimal extra compute. As confidence grows, gradually increase the canary percentage to 100% without a hard cutover." }
+        ]
     }
 };
 

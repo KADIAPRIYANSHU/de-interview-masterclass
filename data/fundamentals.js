@@ -313,6 +313,146 @@ window.fundamentalsLessons = {
                 answer: "RBAC grants permissions based on static role definitions. ABAC evaluates permissions dynamically using characteristics of the user, resource, and request context (e.g., location, time, department) to determine access."
             }
         ]
+    },
+    "1.11": {
+        id: "1.11",
+        stage: "Stage 2: Production Engineering",
+        module: "Data Contracts",
+        title: "Data Contracts (Organizational Practice)",
+        subtitle: "Formal agreements between data producers and consumers that define schema, SLAs, and quality guarantees.",
+        duration: "🕒 15 min read",
+        difficulty: "Intermediate",
+        theory: `
+            <h3>What is a Data Contract?</h3>
+            <p>A <strong>Data Contract</strong> is a formal, versioned agreement between a <strong>data producer</strong> (the team that owns and publishes a dataset) and its <strong>data consumers</strong> (analytics, data science, downstream teams). It defines the schema, semantics, quality rules, SLAs, and ownership of a dataset as a binding interface specification.</p>
+            <h3>What a Data Contract Defines</h3>
+            <ul>
+                <li><strong>Schema:</strong> Field names, data types, nullability, and semantic descriptions (what each field means).</li>
+                <li><strong>Quality rules:</strong> Freshness SLAs (data updated within N hours), completeness thresholds (no more than 0.1% nulls), uniqueness constraints, and referential integrity.</li>
+                <li><strong>Versioning:</strong> Semantic versioning (major.minor.patch) — breaking changes (field removal, type changes) require a major version bump and consumer negotiation.</li>
+                <li><strong>Ownership:</strong> Named producer team, consumer teams, escalation contacts, and on-call information.</li>
+                <li><strong>SLAs:</strong> Delivery time commitments (e.g., data available by 08:00 UTC daily), error rate thresholds, and incident response expectations.</li>
+            </ul>
+            <pre><code># Example Data Contract (YAML)
+apiVersion: v2
+kind: DataContract
+name: orders_v2
+producer: payments-team
+consumers: [analytics, data-science, finance]
+schema:
+  - name: order_id
+    type: STRING
+    nullable: false
+    description: Globally unique order identifier
+  - name: order_amount
+    type: DECIMAL(10,2)
+    nullable: false
+sla:
+  freshness_hours: 4
+  availability_percent: 99.5
+quality:
+  - check: unique(order_id)
+  - check: not_null(order_amount)</code></pre>
+            <h3>Data Contracts vs. dbt Model Contracts</h3>
+            <p>dbt Model Contracts enforce schema at <strong>build time</strong> within the dbt pipeline. Organizational Data Contracts are broader — they govern the data as a published <strong>interface between teams</strong>, covering SLAs, ownership, versioning policy, and consumer rights that go beyond what dbt enforces technically.</p>
+            <h3>Tooling</h3>
+            <p>Popular frameworks: <strong>Data Contract CLI</strong> (open-source), <strong>Soda Contracts</strong>, <strong>Great Expectations</strong>, and <strong>Atlan</strong>. Some organizations implement contracts as plain YAML files version-controlled in GitHub alongside the producer's data pipeline code.</p>
+        `,
+        hasDiagram: false,
+        hasTable: false,
+        interviewQuestions: [
+            { question: "What is the difference between a Data Contract and a dbt Model Contract?", answer: "A dbt Model Contract is a technical enforcement at build time — it validates that the compiled SQL produces the expected schema and aborts if types or columns don't match. An organizational Data Contract is a broader governance agreement between teams covering SLAs, ownership, quality thresholds, versioning policies, and consumer rights. dbt enforces the technical schema; the organizational contract governs the business relationship around data ownership." },
+            { question: "How do you handle breaking schema changes under a Data Contract?", answer: "Breaking changes require a major version bump and a migration period. The producer publishes the new contract version (e.g., orders_v3) alongside the old one. Consumers migrate on their own timeline. The old version is deprecated with a sunset date communicated in advance. This prevents consumers from breaking silently when producers evolve their schemas." }
+        ]
+    },
+    "1.12": {
+        id: "1.12",
+        stage: "Stage 2: Production Engineering",
+        module: "Idempotency Patterns",
+        title: "Idempotency in Data Pipelines",
+        subtitle: "Design pipelines that produce identical results regardless of how many times they run.",
+        duration: "🕒 12 min read",
+        difficulty: "Intermediate",
+        theory: `
+            <h3>What is Idempotency?</h3>
+            <p>An <strong>idempotent pipeline</strong> produces the same result whether it runs once or ten times for the same input data. Running it multiple times does not duplicate rows, corrupt state, or create inconsistencies. This is essential for safe retries, backfills, and incident recovery.</p>
+            <h3>Why Idempotency Breaks</h3>
+            <ul>
+                <li><strong>INSERT without deduplication:</strong> Re-running a pipeline inserts duplicate rows if INSERT INTO is used without a merge or delete-first strategy.</li>
+                <li><strong>Stateful aggregations:</strong> If a pipeline appends to a running total without clearing previous results, re-runs double-count.</li>
+                <li><strong>Non-deterministic functions:</strong> Using CURRENT_TIMESTAMP() or RANDOM() inside transformations produces different output on each run.</li>
+            </ul>
+            <h3>Idempotency Patterns</h3>
+            <ul>
+                <li><strong>Partition overwrite:</strong> Write to a date partition and use INSERT OVERWRITE (or TRUNCATE+INSERT) for that partition. Re-running rewrites the same partition rather than appending. Best for batch daily jobs.</li>
+                <li><strong>MERGE (Upsert):</strong> Use MERGE statements that match on a natural key and update or insert. Re-running produces the same final state.</li>
+                <li><strong>Delete + Insert:</strong> DELETE WHERE load_date = today, then INSERT fresh data. Simple and effective for daily batch loads.</li>
+                <li><strong>Watermark + offset tracking:</strong> For streaming or incremental loads, track the last-processed offset/timestamp in a control table. Re-runs start from the same watermark, never reprocessing records already consumed.</li>
+            </ul>
+            <pre><code>-- Idempotent daily load pattern
+DELETE FROM target_table WHERE load_date = '2026-07-19';
+
+INSERT INTO target_table
+SELECT *, '2026-07-19' AS load_date
+FROM source_table
+WHERE event_date = '2026-07-19';</code></pre>
+            <h3>Testing Idempotency</h3>
+            <p>Run your pipeline twice for the same date partition and compare row counts and checksums between both runs. They must be identical.</p>
+        `,
+        hasDiagram: false,
+        hasTable: false,
+        interviewQuestions: [
+            { question: "Why is idempotency critical for production data pipelines?", answer: "Data pipelines fail and get retried automatically by orchestrators (Airflow, ADF). Without idempotency, retries duplicate rows or corrupt running totals, producing wrong numbers in downstream reports. Idempotent pipelines can be safely retried any number of times without manual cleanup, making incident recovery trivial." },
+            { question: "How would you make a daily aggregation pipeline idempotent?", answer: "Use partition overwrite: before inserting daily aggregates, DELETE WHERE load_date = target_date, then INSERT the freshly computed aggregates for that date. This ensures the pipeline can be re-run for any historical date without accumulating duplicate rows, and the final state is always correct regardless of how many times it ran." }
+        ]
+    },
+    "1.13": {
+        id: "1.13",
+        stage: "Stage 2: Production Engineering",
+        module: "Backfill Strategies",
+        title: "Backfill Strategies for Data Pipelines",
+        subtitle: "Efficiently reprocess historical data after schema changes, logic fixes, or new pipeline deployments.",
+        duration: "🕒 12 min read",
+        difficulty: "Advanced",
+        theory: `
+            <h3>What is a Backfill?</h3>
+            <p>A <strong>backfill</strong> is the process of reprocessing historical data — typically after fixing a bug in transformation logic, deploying a new pipeline with historical coverage requirements, or recovering from a data quality incident.</p>
+            <h3>Types of Backfills</h3>
+            <ul>
+                <li><strong>Full backfill:</strong> Reprocess the entire history of a dataset from the beginning. Used for major logic changes or new pipeline deployments. Expensive but complete.</li>
+                <li><strong>Partial backfill:</strong> Reprocess a specific date range affected by a bug or incident. More targeted and faster.</li>
+                <li><strong>Incremental backfill:</strong> Reprocess in rolling chunks (e.g., 30 days at a time) to avoid overwhelming source systems or compute quotas.</li>
+            </ul>
+            <h3>Backfill Strategy Patterns</h3>
+            <ul>
+                <li><strong>Catchup in Airflow:</strong> Set catchup=True and a start_date to trigger historical DAG runs for each missed execution interval. Each run processes one partition.</li>
+                <li><strong>Parallel date-partitioned backfill:</strong> Generate a list of historical dates and trigger parallel pipeline runs for each date. Dramatically faster than sequential processing.</li>
+                <li><strong>Shadow table approach:</strong> Write backfilled data to a shadow table (e.g., orders_v2_backfill) in parallel with production. Validate quality, then swap the table reference atomically.</li>
+                <li><strong>dbt backfill:</strong> Run 'dbt run --select my_model --vars {"start_date": "2025-01-01", "end_date": "2026-01-01"}' with date variable logic in the model SQL to scope the reprocessing range.</li>
+            </ul>
+            <pre><code>-- Airflow parallel backfill DAG pattern
+with DAG('backfill_orders', catchup=False) as dag:
+    dates = pd.date_range('2025-01-01', '2026-01-01', freq='D')
+    tasks = [
+        SparkSubmitOperator(
+            task_id=f'process_{d.date()}',
+            application='process_orders.py',
+            application_args=[str(d.date())]
+        ) for d in dates
+    ]</code></pre>
+            <h3>Backfill Risks to Mitigate</h3>
+            <ul>
+                <li>Overloading source systems — throttle parallel backfill concurrency.</li>
+                <li>Overwriting correct recent data — always scope the backfill date range tightly.</li>
+                <li>Cost overruns — estimate compute cost before running full historical backfills on multi-year datasets.</li>
+            </ul>
+        `,
+        hasDiagram: false,
+        hasTable: false,
+        interviewQuestions: [
+            { question: "How would you backfill 2 years of historical data for a new pipeline without impacting production?", answer: "Use the shadow table approach: deploy the new pipeline writing to a shadow table (orders_v2_backfill) running in parallel with the live pipeline. Run a parallel date-partitioned backfill job generating historical data for all 730 days with throttled concurrency (e.g., 10 dates in parallel). Validate row counts and quality checks against the old table. Once validated, swap the table reference atomically and decommission the old pipeline." },
+            { question: "What is the difference between catchup in Airflow and a manual backfill script?", answer: "Airflow catchup generates one DAG run per missed schedule interval (e.g., one run per day since start_date), each processing its own logical date. This is built-in and respects dependencies. A manual backfill script is a custom program that iterates over date ranges and triggers runs explicitly — more flexible (can use custom parallelism or chunking) but requires manual implementation and monitoring." }
+        ]
     }
 };
 

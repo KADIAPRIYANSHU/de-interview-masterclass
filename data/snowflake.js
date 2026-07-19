@@ -466,6 +466,193 @@ window.snowflakeLessons = {
             { question: "How does Snowflake support cross-cloud disaster recovery?", answer: "Through Database Replication and Failover Groups. You replicate metadata and physical data to a different cloud region/provider (e.g. AWS to Azure). If AWS fails, you promote the Azure database replica to primary status." },
             { question: "What is the Snowflake Native App Framework?", answer: "It is a distribution model allowing developers to build applications that run directly inside the customer's Snowflake account boundary, securing proprietary source code while protecting consumer data." }
         ]
+    },
+    "1.19": {
+        id: "1.19",
+        stage: "Stage 4: Automation & Cost",
+        module: "Streams & Tasks",
+        title: "Streams & Tasks (CDC + Orchestration)",
+        subtitle: "Capture incremental changes and automate pipeline execution natively inside Snowflake.",
+        duration: "🕒 18 min read",
+        difficulty: "Advanced",
+        theory: `
+            <h3>Snowflake Streams</h3>
+            <p>A <strong>Stream</strong> is a change data capture (CDC) object that records DML changes (INSERT, UPDATE, DELETE) made to a source table. It acts like a watermark — consuming the stream advances the offset, and only new changes appear on the next read.</p>
+            <pre><code>-- Create a stream on a source table
+CREATE OR REPLACE STREAM orders_stream ON TABLE raw_orders;
+
+-- Query the stream (shows only new changes since last consumption)
+SELECT * FROM orders_stream;</code></pre>
+            <p>Key stream metadata columns: <code>METADATA$ACTION</code> (INSERT/DELETE), <code>METADATA$ISUPDATE</code> (true for UPDATE rows), <code>METADATA$ROW_ID</code> (stable hash of the row).</p>
+            <h3>Stream Types</h3>
+            <ul>
+                <li><strong>Standard Stream:</strong> Tracks all DML changes — inserts, updates (as delete+insert pairs), and deletes.</li>
+                <li><strong>Append-Only Stream:</strong> Captures only INSERT operations — best for logging or event tables where rows are never updated.</li>
+                <li><strong>Insert-Only Stream:</strong> For external tables — tracks newly added files from an external stage.</li>
+            </ul>
+            <h3>Snowflake Tasks</h3>
+            <p>A <strong>Task</strong> is a scheduled SQL or Stored Procedure execution unit — the native scheduler for Snowflake pipelines. Tasks use cron or minute-based schedules.</p>
+            <pre><code>-- Create a task that runs every 5 minutes
+CREATE OR REPLACE TASK load_orders_task
+  WAREHOUSE = COMPUTE_WH
+  SCHEDULE = '5 MINUTE'
+  WHEN SYSTEM$STREAM_HAS_DATA('orders_stream')
+AS
+  INSERT INTO processed_orders
+  SELECT order_id, customer_id, CURRENT_TIMESTAMP()
+  FROM orders_stream
+  WHERE METADATA$ACTION = 'INSERT';
+
+-- Resume the task (tasks start SUSPENDED by default)
+ALTER TASK load_orders_task RESUME;</code></pre>
+            <h3>Task DAGs (Directed Acyclic Graphs)</h3>
+            <p>Tasks can be chained into dependency trees — a root task triggers child tasks on completion. This replaces external orchestrators for simple Snowflake-native pipelines.</p>
+            <pre><code>-- Child task depends on root task
+CREATE TASK child_task
+  AFTER load_orders_task
+AS
+  CALL aggregate_daily_sales();</code></pre>
+        `,
+        hasDiagram: false,
+        hasTable: false,
+        interviewQuestions: [
+            { question: "What is the difference between a Standard Stream and an Append-Only Stream?", answer: "A Standard Stream captures all DML changes — inserts, updates (represented as a DELETE+INSERT pair), and deletes. An Append-Only Stream captures only new INSERT rows, which is more efficient for append-only event or log tables where rows are never modified after ingestion." },
+            { question: "Why must a Task be RESUMED before it executes?", answer: "Tasks are created in SUSPENDED state by default to prevent accidental execution on misconfigured pipelines. You must explicitly run ALTER TASK <name> RESUME after verifying the SQL and schedule are correct." },
+            { question: "How does WHEN SYSTEM$STREAM_HAS_DATA work in a Task?", answer: "It is a conditional filter that prevents the Task from executing when the stream has no new records. Without it, the Task runs on every schedule tick even if there is nothing to process, wasting warehouse credits." }
+        ]
+    },
+    "1.20": {
+        id: "1.20",
+        stage: "Stage 4: Automation & Cost",
+        module: "Materialized Views",
+        title: "Materialized Views",
+        subtitle: "Pre-compute and cache complex query results for instant response times.",
+        duration: "🕒 12 min read",
+        difficulty: "Intermediate",
+        theory: `
+            <h3>What is a Materialized View?</h3>
+            <p>A <strong>Materialized View (MV)</strong> is a pre-computed result set stored as a physical micro-partitioned table. Unlike a regular view (which re-executes the query on every read), an MV stores the output and is <strong>automatically refreshed</strong> by Snowflake in the background when the base table changes.</p>
+            <pre><code>CREATE OR REPLACE MATERIALIZED VIEW mv_daily_sales AS
+SELECT
+    sale_date,
+    product_id,
+    SUM(amount) AS total_amount,
+    COUNT(*) AS transaction_count
+FROM raw_sales
+GROUP BY sale_date, product_id;</code></pre>
+            <h3>Key Characteristics</h3>
+            <ul>
+                <li><strong>Automatic refresh:</strong> Snowflake uses a background serverless service to incrementally update the MV when base table DML occurs — no manual scheduling needed.</li>
+                <li><strong>Query rewrite:</strong> Snowflake's optimizer can automatically route queries against the base table to the MV if the MV can satisfy the query — transparent to the query author.</li>
+                <li><strong>Clustering support:</strong> MVs can be clustered on columns, further accelerating pruning on repeated BI queries.</li>
+            </ul>
+            <h3>Limitations</h3>
+            <ul>
+                <li>Cannot contain JOINs, non-deterministic functions (e.g. CURRENT_TIMESTAMP), subqueries, or window functions.</li>
+                <li>Only available on Enterprise edition and above.</li>
+                <li>Refresh credit is billed to the account — MVs on high-churn base tables can become expensive.</li>
+            </ul>
+        `,
+        hasDiagram: false,
+        hasTable: true,
+        tableData: {
+            headers: ["Feature", "Regular View", "Materialized View"],
+            rows: [
+                ["Storage Cost", "None", "Yes — stores result set"],
+                ["Query Speed", "Slow (re-executes)", "Fast (pre-computed)"],
+                ["Auto Refresh", "No", "Yes (background service)"],
+                ["Supports JOINs", "Yes", "No"]
+            ]
+        },
+        interviewQuestions: [
+            { question: "When would you choose a Materialized View over a regular View?", answer: "Use a Materialized View when a complex aggregation or filter is queried frequently by BI tools and the base table changes infrequently. The MV pre-computes the result so BI queries get near-instant response times. Avoid MVs on high-churn tables where refresh costs exceed query savings." },
+            { question: "What is query rewrite in the context of Materialized Views?", answer: "Query rewrite is when Snowflake's optimizer automatically redirects a query against the base table to the Materialized View if the MV can satisfy the query. The query author does not need to reference the MV explicitly — they query the base table and Snowflake handles the routing transparently." }
+        ]
+    },
+    "1.21": {
+        id: "1.21",
+        stage: "Stage 4: Automation & Cost",
+        module: "Resource Monitors",
+        title: "Resource Monitors",
+        subtitle: "Set credit limits and automated alerts to control warehouse spend.",
+        duration: "🕒 10 min read",
+        difficulty: "Intermediate",
+        theory: `
+            <h3>What is a Resource Monitor?</h3>
+            <p>A <strong>Resource Monitor</strong> is a Snowflake object that tracks credit consumption for one or more virtual warehouses. When consumption reaches defined thresholds, the monitor triggers <strong>notifications</strong> and optionally <strong>suspends or kills</strong> the warehouse.</p>
+            <pre><code>-- Create a resource monitor with a 1000 credit monthly limit
+CREATE OR REPLACE RESOURCE MONITOR monthly_budget
+    WITH CREDIT_QUOTA = 1000
+    FREQUENCY = MONTHLY
+    START_TIMESTAMP = IMMEDIATELY
+    TRIGGERS
+        ON 75 PERCENT DO NOTIFY
+        ON 90 PERCENT DO NOTIFY
+        ON 100 PERCENT DO SUSPEND
+        ON 110 PERCENT DO SUSPEND_IMMEDIATE;
+
+-- Assign it to a warehouse
+ALTER WAREHOUSE COMPUTE_WH SET RESOURCE_MONITOR = monthly_budget;</code></pre>
+            <h3>Trigger Actions</h3>
+            <ul>
+                <li><strong>NOTIFY:</strong> Sends an email alert to account administrators.</li>
+                <li><strong>SUSPEND:</strong> Stops the warehouse from starting new queries after the current ones complete.</li>
+                <li><strong>SUSPEND_IMMEDIATE:</strong> Kills all running queries and suspends the warehouse instantly.</li>
+            </ul>
+            <h3>Scope Options</h3>
+            <ul>
+                <li><strong>Account-level monitor:</strong> Tracks all credit usage across the entire account.</li>
+                <li><strong>Warehouse-level monitor:</strong> Scoped to specific warehouses — used for team-level cost accountability.</li>
+            </ul>
+        `,
+        hasDiagram: false,
+        hasTable: false,
+        interviewQuestions: [
+            { question: "What is the difference between SUSPEND and SUSPEND_IMMEDIATE in a Resource Monitor?", answer: "SUSPEND waits for all currently running queries to finish before stopping the warehouse — in-flight work is not lost. SUSPEND_IMMEDIATE kills all running queries immediately and halts the warehouse — useful when runaway queries are burning credits beyond budget." },
+            { question: "Can a Resource Monitor prevent all credit overruns?", answer: "Not completely. There is a small lag between credit consumption and monitoring detection. It is also possible for a warehouse to slightly exceed the quota between measurement intervals. Resource Monitors reduce overruns significantly but should be combined with warehouse auto-suspend policies for complete control." }
+        ]
+    },
+    "1.22": {
+        id: "1.22",
+        stage: "Stage 4: Automation & Cost",
+        module: "Tags for Cost Allocation",
+        title: "Snowflake Tags & Cost Allocation",
+        subtitle: "Label objects with metadata tags and trace credits back to business units.",
+        duration: "🕒 10 min read",
+        difficulty: "Intermediate",
+        theory: `
+            <h3>Snowflake Object Tags</h3>
+            <p><strong>Tags</strong> are schema-level objects that assign key-value metadata to Snowflake objects (tables, columns, warehouses, users). They enable governance, data classification, and financial chargeback models.</p>
+            <pre><code>-- Create a tag
+CREATE OR REPLACE TAG cost_center;
+CREATE OR REPLACE TAG data_classification ALLOWED_VALUES 'PII', 'SENSITIVE', 'PUBLIC';
+
+-- Apply tag to a warehouse (cost allocation)
+ALTER WAREHOUSE analytics_wh SET TAG cost_center = 'Marketing';
+
+-- Apply tag to a table column (data governance)
+ALTER TABLE customers MODIFY COLUMN email SET TAG data_classification = 'PII';</code></pre>
+            <h3>Cost Allocation via Tags</h3>
+            <p>By tagging warehouses with business unit identifiers, you can query <code>SNOWFLAKE.ACCOUNT_USAGE.WAREHOUSE_METERING_HISTORY</code> joined with tag references to produce departmental cost reports.</p>
+            <pre><code>-- Query warehouse credits by cost center tag
+SELECT
+    TAG_VALUE AS cost_center,
+    SUM(credits_used) AS total_credits
+FROM SNOWFLAKE.ACCOUNT_USAGE.WAREHOUSE_METERING_HISTORY wm
+JOIN SNOWFLAKE.ACCOUNT_USAGE.TAG_REFERENCES tr
+    ON tr.OBJECT_NAME = wm.WAREHOUSE_NAME
+    AND tr.TAG_NAME = 'COST_CENTER'
+GROUP BY cost_center
+ORDER BY total_credits DESC;</code></pre>
+            <h3>Tag Lineage & Propagation</h3>
+            <p>Tags applied to a table column automatically propagate to downstream views and masking policies that reference that column, enabling consistent governance without re-tagging derived objects.</p>
+        `,
+        hasDiagram: false,
+        hasTable: false,
+        interviewQuestions: [
+            { question: "How do Snowflake Tags support financial chargeback models?", answer: "By tagging warehouses with business unit identifiers (like cost_center = 'Marketing'), you can join WAREHOUSE_METERING_HISTORY with TAG_REFERENCES in ACCOUNT_USAGE to calculate exactly how many credits each department consumed. This enables accurate monthly chargeback billing to each business unit." },
+            { question: "What is tag propagation and why is it useful for governance?", answer: "Tag propagation means that a tag applied to a source table column is automatically inherited by downstream views, masking policies, and cloned objects that reference that column. This ensures PII or sensitivity classifications flow through the entire data pipeline without requiring manual re-tagging of every derived object." }
+        ]
     }
 };
 
