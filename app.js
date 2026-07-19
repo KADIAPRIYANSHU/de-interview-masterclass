@@ -423,9 +423,9 @@ function addToRecentlyViewed(title) {
         title: title
     });
 
-    // Keep only last 5 items
-    if (recentlyViewed.length > 5) {
-        recentlyViewed.pop();
+    // Keep only last 3 items
+    if (recentlyViewed.length > 3) {
+        recentlyViewed = recentlyViewed.slice(0, 3);
     }
 
     localStorage.setItem("de_recently_viewed", JSON.stringify(recentlyViewed));
