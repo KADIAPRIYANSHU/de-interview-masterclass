@@ -611,8 +611,6 @@ JOIN dim_customers c ON o.customer_id = c.customer_id;</code></pre>
             { question: "What is query rewrite in the context of Materialized Views?", answer: "Query rewrite is when Snowflake's optimizer automatically redirects a query against the base table to the Materialized View if the MV can satisfy the query. The query author does not need to reference the MV explicitly â€” they query the base table and Snowflake handles the routing transparently." },
             { question: "When would you use a Dynamic Table instead of a Materialized View?", answer: "Use a Dynamic Table when your transformation requires JOINs, window functions, or complex multi-table logic that a Materialized View cannot support. Dynamic Tables accept any SQL including JOINs and window functions, and refresh incrementally based on a target lag setting. Use Materialized Views only for simple single-table aggregations where sub-second read latency is critical." }
         ]
-€” they query the base table and Snowflake handles the routing transparently." }
-        ]
     },
     "1.21": {
         id: "1.21",
