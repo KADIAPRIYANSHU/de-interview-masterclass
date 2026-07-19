@@ -512,7 +512,7 @@ dbt docs generate</code></pre>
             <h3>Environment Management</h3>
             <p>Both Core and Cloud support strict environment isolation:</p>
             <ul>
-                <li><strong>dev:</strong> Isolated developer schemas (e.g., `dbt_pkadia`).</li>
+                <li><strong>dev:</strong> Isolated developer schemas (e.g., <code>dbt_pkadia</code>).</li>
                 <li><strong>qa:</strong> Staging environment for CI/CD testing.</li>
                 <li><strong>prod:</strong> The official production environment.</li>
             </ul>

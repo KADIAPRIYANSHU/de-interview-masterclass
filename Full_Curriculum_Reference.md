@@ -58,6 +58,14 @@ This document contains all details, theory, and interview questions for all 108 
             <p>If a warehouse cluster receives more queries than it can run concurrently, extra queries enter **Statement Queueing**. In a multi-cluster setup, Snowflake automatically spins up a new cluster to absorb the queued queries (concurrency scaling).</p>
             <h3>Query Acceleration Service (QAS)</h3>
             <p>QAS is an account-level feature that dynamically delegates parts of massive table scans to serverless compute resources outside your warehouse. It acts like a temporary burst of CPU to accelerate outliers without needing to scale up the warehouse permanently.</p>
+        
+
+            <h3>Warehouse Sizing & Lifecycle</h3>
+            <ul>
+                <li><strong>Warehouse Sizes:</strong> Range from X-Small (1 credit/hr, 1 server) up to 6X-Large (512 credits/hr, 512 servers). Scaling UP gives more memory for complex joins.</li>
+                <li><strong>Auto-Suspend:</strong> Automatically shuts down the warehouse after N seconds of inactivity to save credits.</li>
+                <li><strong>Auto-Resume:</strong> Automatically wakes the warehouse up when a new query arrives. (Note: there is a slight 1-3 second spin-up latency).</li>
+            </ul>
 
 #### Interview Questions
 **Q: What is the difference between Scaling Up and Scaling Out?**
@@ -172,6 +180,13 @@ This document contains all details, theory, and interview questions for all 108 
             </ul>
             <h3>Dynamic Data Masking</h3>
             <p>A column-level security feature. You create a <code>MASKING POLICY</code> that evaluates the <code>CURRENT_ROLE()</code>. If the role is 'HR', it shows the real value. Otherwise, it shows '***' or 0. This policy is attached directly to the table column.</p>
+        
+
+            <h3>Authentication Methods</h3>
+            <ul>
+                <li><strong>OAuth & External OAuth:</strong> Standard protocol for delegated authorization without sharing credentials. Supports integration with Okta, Azure AD, Ping, etc.</li>
+                <li><strong>Key Pair Authentication:</strong> Uses a 2048-bit RSA key pair (public/private) for highly secure, password-less authentication (often used by service accounts and programmatic clients like Python).</li>
+            </ul>
 
 #### Interview Questions
 **Q: Enterprise Scenario: Different departments should only access their own data in a shared table. How do you implement this?**
@@ -197,6 +212,13 @@ This document contains all details, theory, and interview questions for all 108 
                 <li><strong>QUALIFY:</strong> A Snowflake-specific clause that filters the results of Window Functions without needing a subquery or CTE.</li>
                 <li><strong>PIVOT / UNPIVOT:</strong> Converts rows to columns (PIVOT) or columns to rows (UNPIVOT).</li>
                 <li><strong>Recursive CTEs:</strong> Used for hierarchical data (like a Manager/Employee org chart).</li>
+            </ul>
+        
+
+            <h3>Additional Advanced SQL Constructs</h3>
+            <ul>
+                <li><strong>RESULT_SCAN():</strong> A table function that returns the result set of a previous command (like returning the output of a DESCRIBE or SHOW command as a queryable table).</li>
+                <li><strong>TABLE Functions:</strong> Functions that return a set of rows instead of a single scalar value. Used extensively in Snowflake for flattening or querying metadata.</li>
             </ul>
 
 #### Interview Questions
@@ -264,6 +286,13 @@ This document contains all details, theory, and interview questions for all 108 
                 <li>Standard Edition: Limit of 1 day maximum.</li>
                 <li>Enterprise Edition: Up to 90 days configurable per object.</li>
             </ul>
+        
+
+            <h3>Object Restoration & Retention Limits</h3>
+            <ul>
+                <li><strong>Restore Objects:</strong> You can completely <code>RESTORE DATABASE</code>, <code>RESTORE SCHEMA</code>, or <code>RESTORE TABLE</code> if they were dropped, instantly recovering all underlying data without using backups.</li>
+                <li><strong>Data Retention Limits:</strong> Standard Edition is hard-limited to 1 day of Time Travel. Enterprise Edition allows configuring the retention period up to 90 days.</li>
+            </ul>
 
 #### Interview Questions
 **Q: How do you query a table as it existed 10 minutes ago?**
@@ -319,6 +348,14 @@ This document contains all details, theory, and interview questions for all 108 
             <p>VARIANT is Snowflake's native data type that stores JSON, Avro, ORC, and Parquet natively while maintaining internal columnar compression.</p>
             <h3>The FLATTEN Function</h3>
             <p>FLATTEN is a table function that explodes an array (like a list of products in a single JSON cart) into multiple rows so you can join them against standard tables. <code>LATERAL FLATTEN</code> allows you to reference columns from the main table alongside the exploded rows.</p>
+        
+
+            <h3>Advanced Object & Array Construction</h3>
+            <ul>
+                <li><strong>OBJECT_CONSTRUCT():</strong> Builds a Snowflake OBJECT from key-value pairs. Useful for converting relational columns into a single JSON blob.</li>
+                <li><strong>ARRAY_CONSTRUCT():</strong> Builds a JSON array from a list of inputs.</li>
+                <li><strong>ARRAY_APPEND():</strong> Appends a new element to the end of an existing array.</li>
+            </ul>
 
 #### Interview Questions
 **Q: How do you load JSON data into Snowflake?**
@@ -472,6 +509,12 @@ This document contains all details, theory, and interview questions for all 108 
             <ul>
                 <li><strong>SnowSQL:</strong> Command-line client for executing SQL queries, managing stages (PUT/GET), and running automation shell scripts.</li>
                 <li><strong>Connectors:</strong> Official library packages (Python, JDBC, ODBC, Spark, SQLAlchemy) that enable third-party tools to connect and query Snowflake.</li>
+            </ul>
+        
+
+            <h3>Advanced Integrations</h3>
+            <ul>
+                <li><strong>Kafka Connector:</strong> The Snowflake Connector for Kafka natively streams data directly from Kafka topics into Snowflake tables (often using Snowpipe Streaming under the hood).</li>
             </ul>
 
 #### Interview Questions
@@ -943,6 +986,14 @@ ORDER BY total_credits DESC;</code></pre>
                 <li><strong>Pagination:</strong> Fetching data in chunks (pages) using token links or offset indices. ADF Data Flows can handle pagination properties natively.</li>
                 <li><strong>Rate Limits:</strong> APIs limit queries per minute. You must configure the Copy/Web activity **Retry** parameters to back off on 429 (Too Many Requests) errors.</li>
             </ul>
+        
+
+            <h3>Advanced REST API Capabilities</h3>
+            <ul>
+                <li><strong>Pagination:</strong> ADF supports absolute url, next page URL, and RFC 5988 header pagination out of the box to loop through paginated endpoints.</li>
+                <li><strong>OAuth Authentication:</strong> Connect securely using OAuth2 client credentials flow directly in the Linked Service.</li>
+                <li><strong>Retry:</strong> Web Activities support configurable retry logic for transient API failures.</li>
+            </ul>
 
 #### Interview Questions
 **Q: How do you execute an OAuth2 pipeline in ADF?**
@@ -1070,6 +1121,15 @@ ORDER BY total_credits DESC;</code></pre>
                 <li><strong>Tumbling Window Trigger:</strong> Fires at regular, non-overlapping intervals. Has unique capabilities: it can handle data backfills easily, manages self-dependencies (waiting for previous windows to finish), and retries on failure.</li>
                 <li><strong>Event Trigger:</strong> Runs dynamically when files land in a Blob Storage stage (BlobCreated, BlobDeleted).</li>
                 <li><strong>Dependency Trigger:</strong> A Tumbling Window trigger can depend on another Tumbling Window trigger in a different pipeline, ensuring sequential processing (e.g. waiting for staging pipeline before running data warehouse load).</li>
+            </ul>
+        
+
+            <h3>Detailed Trigger Types</h3>
+            <ul>
+                <li><strong>Schedule Trigger:</strong> Runs pipelines on a wall-clock schedule (e.g., daily at 2 AM).</li>
+                <li><strong>Event Trigger:</strong> Runs in response to a Storage Event (like Blob created/deleted).</li>
+                <li><strong>Tumbling Window Trigger:</strong> Fires at a periodic interval and maintains state. If a run fails, it can automatically retry. It also supports passing the start/end window times directly into the pipeline.</li>
+                <li><strong>Manual Trigger:</strong> Triggered on-demand via the UI or REST API.</li>
             </ul>
 
 #### Interview Questions
@@ -1703,6 +1763,15 @@ dbt docs generate</code></pre>
                 <li><strong>CI/CD:</strong> dbt Core integrates with GitHub Actions / Azure DevOps manually. dbt Cloud has native Slim CI (runs only changed models using state comparison).</li>
                 <li><strong>Semantic Layer:</strong> The dbt Semantic Layer (MetricFlow) API is only available in dbt Cloud paid tiers for external BI tool consumption.</li>
                 <li><strong>Cost:</strong> dbt Core is free. dbt Cloud ranges from free (Developer tier, 1 seat) to Enterprise pricing.</li>
+            </ul>
+        
+
+            <h3>Environment Management</h3>
+            <p>Both Core and Cloud support strict environment isolation:</p>
+            <ul>
+                <li><strong>dev:</strong> Isolated developer schemas (e.g., <code>dbt_pkadia</code>).</li>
+                <li><strong>qa:</strong> Staging environment for CI/CD testing.</li>
+                <li><strong>prod:</strong> The official production environment.</li>
             </ul>
 
 #### Interview Questions
