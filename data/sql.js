@@ -29,7 +29,7 @@ window.sqlLessons = {
     "subtitle": "Inner, Outer, Cross, and Self Joins, and the danger of NULL comparisons.",
     "duration": "🕒 15 min read",
     "difficulty": "Intermediate",
-    "theory": "\n            <h3>Join Operations</h3>\n            <ul>\n                <li><strong>INNER JOIN:</strong> Returns rows when there is a match in both tables.</li>\n                <li><strong>LEFT JOIN:</strong> Returns all rows from the left table, and matching rows from the right table. Unmatched right rows return NULL.</li>\n                <li><strong>FULL OUTER JOIN:</strong> Returns all rows when there is a match in either table.</li>\n                <li><strong>CROSS JOIN:</strong> Cartesian product (multiplies every row of table A by every row of table B).</li>\n                <li><strong>SELF JOIN:</strong> Joining a table to itself (e.g., matching employees to managers).</li>\n            </ul>\n            <h3>The Danger of NULL comparisons</h3>\n            <p>In SQL, <code>NULL</code> represents 'unknown value'. Comparing any value to NULL using standard operators (<code>=</code>, <code>!=</code>) always evaluates to **UNKNOWN** (effectively False). You must use <code>IS NULL</code> or <code>IS NOT NULL</code>.</p>\n        ",
+    "theory": "\n            <h3>Join Operations</h3>\n            <ul>\n                <li><strong>INNER JOIN:</strong> Returns rows when there is a match in both tables.</li>\n                <li><strong>LEFT JOIN:</strong> Returns all rows from the left table, and matching rows from the right table. Unmatched right rows return NULL.</li>\n                <li><strong>FULL OUTER JOIN:</strong> Returns all rows when there is a match in either table.</li>\n                <li><strong>CROSS JOIN:</strong> Cartesian product (multiplies every row of table A by every row of table B).</li>\n                <li><strong>SELF JOIN:</strong> Joining a table to itself (e.g., matching employees to managers).</li>\n            </ul>\n            <h3>The Danger of NULL comparisons</h3>\n            <p>In SQL, <code>NULL</code> represents 'unknown value'. Comparing any value to NULL using standard operators (<code>=</code>, <code>!=</code>) always evaluates to <strong>UNKNOWN</strong> (effectively False). You must use <code>IS NULL</code> or <code>IS NOT NULL</code>.</p>\n        ",
     "hasDiagram": false,
     "hasTable": false,
     "interviewQuestions": [
@@ -120,7 +120,7 @@ window.sqlLessons = {
     "subtitle": "Correlated subqueries, Common Table Expressions, and recursive tree traversal.",
     "duration": "🕒 15 min read",
     "difficulty": "Advanced",
-    "theory": "\n            <h3>SQL Structures</h3>\n            <ul>\n                <li><strong>Subquery:</strong> A query nested inside another query (e.g., in WHERE or FROM).\n                    <ul>\n                        <li><em>Correlated:</em> References columns from the parent outer query. Runs once for every candidate row (can be slow).</li>\n                    </ul>\n                </li>\n                <li><strong>CTE (Common Table Expression):</strong> Defined using the <code>WITH</code> statement. It improves query readability and serves as a temporary named view.</li>\n            </ul>\n            <h3>Recursive CTEs</h3>\n            <p>Used to query hierarchical tree structures (like manager-employee org charts). It features an **Anchor Query** (the starting node) unioned with a **Recursive Query** that references the CTE itself until no more children are found.</p>\n        ",
+    "theory": "\n            <h3>SQL Structures</h3>\n            <ul>\n                <li><strong>Subquery:</strong> A query nested inside another query (e.g., in WHERE or FROM).\n                    <ul>\n                        <li><em>Correlated:</em> References columns from the parent outer query. Runs once for every candidate row (can be slow).</li>\n                    </ul>\n                </li>\n                <li><strong>CTE (Common Table Expression):</strong> Defined using the <code>WITH</code> statement. It improves query readability and serves as a temporary named view.</li>\n            </ul>\n            <h3>Recursive CTEs</h3>\n            <p>Used to query hierarchical tree structures (like manager-employee org charts). It features an <strong>Anchor Query</strong> (the starting node) unioned with a <strong>Recursive Query</strong> that references the CTE itself until no more children are found.</p>\n        ",
     "hasDiagram": false,
     "hasTable": false,
     "interviewQuestions": [
@@ -230,7 +230,7 @@ window.sqlLessons = {
     "subtitle": "Differentiate return schemas, execution scope, and automation.",
     "duration": "🕒 15 min read",
     "difficulty": "Intermediate",
-    "theory": "\n            <h3>Database Programmatics</h3>\n            <ul>\n                <li><strong>User Defined Function (UDF):</strong> Designed to calculate and return values. Must return a value (scalar or table). Can be used directly inside SELECT statements. Cannot perform DML or database alterations.</li>\n                <li><strong>Stored Procedure:</strong> Designed to execute administrative operations. Can run DML (inserts, drops, updates). Cannot be called inside a SELECT; must be executed using 'CALL' statements.</li>\n            </ul>\n        ",
+    "theory": "\n            <h3>Stored Procedures</h3>\n            <p>Stored Procedures are used to execute complex business logic that requires multiple DDL/DML statements. They can perform inserts, updates, deletes, manage transactions, and even execute dynamic SQL. They usually do not return a single value directly for use in a query, but rather return a status or output variables.</p>\n            <h3>User Defined Functions (UDFs)</h3>\n            <p>UDFs are designed to compute and return a value (scalar) or a set of rows (table function). They must be deterministic (or declared otherwise), cannot perform DML (inserts/updates), and are heavily optimized to be called directly within a SELECT statement.</p>\n            <h3>Execution Context</h3>\n            <p>Stored Procedures often execute with Caller's Rights (running with the permissions of the user calling them) or Owner's Rights (running with the permissions of the creator, allowing users to safely perform actions they normally couldn't).</p>\n        ",
     "hasDiagram": false,
     "hasTable": true,
     "tableData": {
@@ -262,6 +262,14 @@ window.sqlLessons = {
         {
             "question": "When should you write a Stored Procedure instead of a User Defined Function?",
             "answer": "Use Stored Procedures when executing administrative tasks or multi-step DML pipelines (like dropping schemas, running copy operations, or executing dynamic SQL strings). Use UDFs for row-level transformations that must run inside SELECT statements."
+        },
+        {
+            "question": "Can I write an INSERT statement inside a User Defined Function (UDF)?",
+            "answer": "No. UDFs are restricted from performing DML operations (INSERT, UPDATE, DELETE) and DDL operations. If you need to modify data state, you must use a Stored Procedure."
+        },
+        {
+            "question": "What is the difference between Caller's Rights and Owner's Rights in a Stored Procedure?",
+            "answer": "Caller's Rights execute the procedure using the privileges of the person running it. Owner's Rights execute the procedure using the privileges of the person who created it. Owner's Rights are often used to let low-privileged users execute specific administrative tasks securely."
         }
     ]
 },

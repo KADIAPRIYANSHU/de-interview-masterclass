@@ -7,7 +7,7 @@ window.dbtLessons = {
     "subtitle": "The compiler engine, target directory, profiles config, and the manifest.json.",
     "duration": "🕒 15 min read",
     "difficulty": "Beginner to Intermediate",
-    "theory": "\n            <h3>What is dbt?</h3>\n            <p>dbt compiles SQL files with Jinja expressions and sends them to your data warehouse (e.g., Snowflake) for execution. It manages the **T** (Transformation) of ETL/ELT pipelines.</p>\n\n            <h3>How Compilation Works</h3>\n            <p>dbt parses Jinja expressions and compiles raw SQL files inside the <code>target/compiled/</code> directory. The full project lineage, configurations, and metadata are saved in a single output JSON file called <code>manifest.json</code>.</p>\n\n            <h3>Connecting with Profiles</h3>\n            <p>Connection paths, targets (dev, prod, qa), database credentials, and roles are configured in your local <code>profiles.yml</code> file to keep access details out of version control repositories.</p>\n        ",
+    "theory": "\n            <h3>What is dbt?</h3>\n            <p>dbt compiles SQL files with Jinja expressions and sends them to your data warehouse (e.g., Snowflake) for execution. It manages the <strong>T</strong> (Transformation) of ETL/ELT pipelines.</p>\n\n            <h3>How Compilation Works</h3>\n            <p>dbt parses Jinja expressions and compiles raw SQL files inside the <code>target/compiled/</code> directory. The full project lineage, configurations, and metadata are saved in a single output JSON file called <code>manifest.json</code>.</p>\n\n            <h3>Connecting with Profiles</h3>\n            <p>Connection paths, targets (dev, prod, qa), database credentials, and roles are configured in your local <code>profiles.yml</code> file to keep access details out of version control repositories.</p>\n        ",
     "hasDiagram": false,
     "hasTable": false,
     "interviewQuestions": [
@@ -73,7 +73,7 @@ window.dbtLessons = {
     "subtitle": "Configure freshness checks, dynamic loaded_at limits, and warning policies.",
     "duration": "🕒 15 min read",
     "difficulty": "Intermediate",
-    "theory": "\n            <h3>Source Freshness</h3>\n            <p>To avoid processing stale or delayed data from raw sources, dbt allows you to configure **Freshness Checks** in your source YAML configurations. You specify a timestamp column to evaluate and define freshness limits:</p>\n            <pre><code>sources:\n  - name: raw_sales\n    tables:\n      - name: orders\n        freshness:\n          warn_after: {count: 6, period: hour}\n          error_after: {count: 12, period: hour}\n        loaded_at_field: order_date</code></pre>\n            <p>Running <code>dbt source freshness</code> calculates the delta time since the newest timestamp in <code>loaded_at_field</code> and warns or errors if thresholds are exceeded.</p>\n        ",
+    "theory": "\n            <h3>Source Freshness</h3>\n            <p>To avoid processing stale or delayed data from raw sources, dbt allows you to configure <strong>Freshness Checks</strong> in your source YAML configurations. You specify a timestamp column to evaluate and define freshness limits:</p>\n            <pre><code>sources:\n<ul>\n    <li>name: raw_sales</li>\n</ul>\n    tables:\n<ul>\n    <li>name: orders</li>\n</ul>\n        freshness:\n          warn_after: {count: 6, period: hour}\n          error_after: {count: 12, period: hour}\n        loaded_at_field: order_date</code></pre>\n            <p>Running <code>dbt source freshness</code> calculates the delta time since the newest timestamp in <code>loaded_at_field</code> and warns or errors if thresholds are exceeded.</p>\n        ",
     "hasDiagram": false,
     "hasTable": false,
     "interviewQuestions": [
@@ -95,13 +95,17 @@ window.dbtLessons = {
     "subtitle": "Append, merge, delete+insert, insert+overwrite, and unique keys.",
     "duration": "🕒 20 min read",
     "difficulty": "Advanced",
-    "theory": "\n            <h3>Incremental Strategies</h3>\n            <p> dbt uses different SQL strategies to load delta data:</p>\n            <ul>\n                <li><strong>merge:</strong> Default on Snowflake. Runs a SQL MERGE statement matching primary key parameters.</li>\n                <li><strong>append:</strong> Appends incoming rows blindly (fast, but risks duplicate records).</li>\n                <li><strong>delete+insert:</strong> Deletes existing records matching unique keys, then inserts new rows.</li>\n                <li><strong>insert+overwrite:</strong> Overwrites specific partitions (highly cost-effective on BigQuery).</li>\n            </ul>\n        ",
+    "theory": "\n            <h3>Incremental Load Strategies</h3>\n            <p>When dealing with massive tables, rebuilding them daily is too expensive. Incremental models only process new or updated data.</p>\n            <ul>\n                <li><strong>append:</strong> Simply inserts new records. Very fast, but risks duplicates if ran twice. Best for immutable logs.</li>\n                <li><strong>merge:</strong> Uses a unique_key to UPDATE existing records and INSERT new ones (UPSERT). Standard for dimensions.</li>\n                <li><strong>delete+insert:</strong> Deletes records matching the unique_key, then inserts the new ones. Often faster than merge on MPP databases like Snowflake.</li>\n                <li><strong>insert_overwrite:</strong> Completely overwrites specific partitions (like a day or month). Highly efficient for large fact tables.</li>\n            </ul>\n        ",
     "hasDiagram": false,
     "hasTable": false,
     "interviewQuestions": [
         {
-            "question": "How do you handle duplicate rows in an incremental model run?",
-            "answer": "Configure a <code>unique_key</code> in your config block. dbt will use the merge or delete+insert strategy to update existing matching keys instead of creating duplicate records."
+            "question": "When would you choose insert_overwrite over merge for an incremental model?",
+            "answer": "Insert_overwrite is much more efficient for massive time-series fact tables where data is partitioned by date. Instead of scanning for unique keys to UPDATE, it simply drops and replaces the entire daily partition."
+        },
+        {
+            "question": "What is the primary risk of using the append incremental strategy?",
+            "answer": "Append does not check for existing records. If the pipeline runs twice (e.g., during a retry after a failure), it will duplicate all records. You must ensure the source data strictly prevents duplicates or use an idempotent strategy."
         }
     ]
 },
@@ -149,7 +153,7 @@ window.dbtLessons = {
     "subtitle": "Schema enforcement, column typing, and enforcing data constraints.",
     "duration": "🕒 15 min read",
     "difficulty": "Advanced",
-    "theory": "\n            <h3>dbt Model Contracts</h3>\n            <p>A Model Contract is a new feature in dbt that enforces that your model's database outputs match an exact structure defined in your YAML file. If the compiled SQL does not match the contract (e.g. data types differ or column counts do not align), the build fails before writing to the database.</p>\n            <pre><code>models:\n  - name: my_model\n    config:\n      contract:\n        enforced: true\n    columns:\n      - name: user_id\n        data_type: integer\n        constraints:\n          - type: not_null\n          - type: primary_key</code></pre>\n            <h3>Database Constraints</h3>\n            <p>Enforcing a contract lets dbt apply constraints directly on your target database tables (e.g. 'primary_key', 'foreign_key', 'not_null', and 'check').</p>\n        ",
+    "theory": "\n            <h3>dbt Model Contracts</h3>\n            <p>A Model Contract is a new feature in dbt that enforces that your model's database outputs match an exact structure defined in your YAML file. If the compiled SQL does not match the contract (e.g. data types differ or column counts do not align), the build fails before writing to the database.</p>\n            <pre><code>models:\n<ul>\n    <li>name: my_model</li>\n</ul>\n    config:\n      contract:\n        enforced: true\n    columns:\n<ul>\n    <li>name: user_id</li>\n</ul>\n        data_type: integer\n        constraints:\n<ul>\n    <li>type: not_null</li>\n    <li>type: primary_key</code></pre></li>\n</ul>\n            <h3>Database Constraints</h3>\n            <p>Enforcing a contract lets dbt apply constraints directly on your target database tables (e.g. 'primary_key', 'foreign_key', 'not_null', and 'check').</p>\n        ",
     "hasDiagram": false,
     "hasTable": false,
     "interviewQuestions": [
@@ -171,7 +175,7 @@ window.dbtLessons = {
     "subtitle": "Writing model unit tests using mock fixture data and expected outputs.",
     "duration": "🕒 15 min read",
     "difficulty": "Advanced",
-    "theory": "\n            <h3>Unit Testing in dbt</h3>\n            <p>Unit tests let you validate your SQL transformations using static, mock inputs (fixture data) before running the model against live warehouse tables. This ensures your math, logic, and data mappings function exactly as designed.</p>\n            <p>You define mock values and expected output rows in a YAML file inside the 'tests/' directory:</p>\n            <pre><code>unit_tests:\n  - name: test_calculate_sales\n    model: calculate_sales\n    given:\n      - input: ref('stg_orders')\n        rows:\n          - {order_id: 1, price: 10, discount: 2}\n    expect:\n      rows:\n        - {order_id: 1, net_sales: 8}</code></pre>\n            <p>dbt compiles the model, feeds it the mock inputs, and matches the outputs against the expected rows.</p>\n        ",
+    "theory": "\n            <h3>Unit Testing in dbt</h3>\n            <p>Unit tests let you validate your SQL transformations using static, mock inputs (fixture data) before running the model against live warehouse tables. This ensures your math, logic, and data mappings function exactly as designed.</p>\n            <p>You define mock values and expected output rows in a YAML file inside the 'tests/' directory:</p>\n            <pre><code>unit_tests:\n<ul>\n    <li>name: test_calculate_sales</li>\n</ul>\n    model: calculate_sales\n    given:\n<ul>\n    <li>input: ref('stg_orders')</li>\n</ul>\n        rows:\n<ul>\n    <li>{order_id: 1, price: 10, discount: 2}</li>\n</ul>\n    expect:\n      rows:\n<ul>\n    <li>{order_id: 1, net_sales: 8}</code></pre></li>\n</ul>\n            <p>dbt compiles the model, feeds it the mock inputs, and matches the outputs against the expected rows.</p>\n        ",
     "hasDiagram": false,
     "hasTable": false,
     "interviewQuestions": [
@@ -193,13 +197,17 @@ window.dbtLessons = {
     "subtitle": "Write dynamic, reusable SQL operations and schema naming overrides.",
     "duration": "🕒 15 min read",
     "difficulty": "Advanced",
-    "theory": "\n            <h3>Jinja & Macros</h3>\n            <p>Jinja is a templating engine for writing loops and conditionals. Macros are reusable blocks of SQL functions configured in the <code>macros/</code> directory.</p>\n        ",
+    "theory": "\n            <h3>Jinja in dbt</h3>\n            <p>Jinja is a templating language that allows you to write control structures (if statements, for loops) directly inside your SQL. This turns static SQL into dynamic, reusable code.</p>\n            <h3>Macros</h3>\n            <p>Macros are the dbt equivalent of functions. You define a macro once using Jinja, and call it across multiple models to keep your code DRY (Don't Repeat Yourself).</p>\n            <pre><code>{% macro cents_to_dollars(column_name) %}\n    ROUND({{ column_name }} / 100, 2)\n{% endmacro %}</code></pre>\n            <p><strong>Use Cases:</strong> Generating complex case statements, pivoting rows to columns using for loops, or abstracting away database-specific date functions.</p>\n        ",
     "hasDiagram": false,
     "hasTable": false,
     "interviewQuestions": [
         {
-            "question": "What is a Macro in dbt?",
-            "answer": "A Macro is a block of reusable SQL logic parameterized using Jinja. It acts like a function, letting you write DRY (Don't Repeat Yourself) code."
+            "question": "How do you use Jinja to pivot rows into columns dynamically in dbt?",
+            "answer": "You can use dbt_utils.get_column_values to fetch a list of unique values, then use a Jinja for loop to iterate over those values and generate conditional SUM(CASE WHEN...) statements for each column dynamically."
+        },
+        {
+            "question": "What does keeping code DRY mean in the context of dbt Macros?",
+            "answer": "DRY stands for Don't Repeat Yourself. If you have complex logic (like currency conversion or timezone handling) used in 50 models, you write it once as a Macro and call it. If the logic needs to change, you only update the Macro."
         }
     ]
 },
@@ -211,13 +219,17 @@ window.dbtLessons = {
     "subtitle": "Execute custom SQL commands during startup, finish, and run cycles.",
     "duration": "🕒 15 min read",
     "difficulty": "Intermediate",
-    "theory": "\n            <h3>dbt Hooks</h3>\n            <p>Hooks run SQL commands at specific model phases: <code>pre-hook</code> (before a model builds), <code>post-hook</code> (after a model builds), <code>on-run-start</code> (at the start of a run), and <code>on-run-end</code> (at the end of a run).</p>\n        ",
+    "theory": "\n            <h3>Pre-hooks and Post-hooks</h3>\n            <p>Hooks are SQL statements that execute immediately before (pre-hook) or after (post-hook) a model runs.</p>\n            <ul>\n                <li><strong>Pre-hooks:</strong> Often used for session configurations or setting environment variables before a heavy query.</li>\n                <li><strong>Post-hooks:</strong> Typically used for granting permissions (GRANT SELECT TO role), creating secondary indexes, or running cleanup commands (like VACUUM or ANALYZE).</li>\n            </ul>\n            <p>Hooks can be defined in the <code>dbt_project.yml</code> to apply to entire directories, or inside the model's <code>{{ config(...) }}</code> block.</p>\n        ",
     "hasDiagram": false,
     "hasTable": false,
     "interviewQuestions": [
         {
-            "question": "How do you configure a post-hook to grant SELECT access?",
-            "answer": "Add it globally in `dbt_project.yml`: <code>+post-hook: \"grant select on {{ this }} to role analyst_role;\"</code>."
+            "question": "Give a real-world example of using a post-hook in dbt.",
+            "answer": "A common use case is granting read access to a specific role after a model is built: post_hook='grant select on {{ this }} to role bi_analyst'. Another example is running clustering commands on Snowflake."
+        },
+        {
+            "question": "Can hooks be configured globally for multiple models at once?",
+            "answer": "Yes, hooks can be defined at the directory level inside the dbt_project.yml file. This allows you to apply a standard post-hook (like granting permissions) to hundreds of models simultaneously."
         }
     ]
 },
@@ -229,7 +241,7 @@ window.dbtLessons = {
     "subtitle": "Importing libraries: dbt-utils, dbt-expectations, codegen, and audit-helper.",
     "duration": "🕒 15 min read",
     "difficulty": "Intermediate",
-    "theory": "\n            <h3>Package Management</h3>\n            <p>dbt allows importing external libraries from the dbt Hub Registry. You declare package dependencies in a <code>packages.yml</code> file:</p>\n            <pre><code>packages:\n  - package: dbt-labs/dbt_utils\n    version: 1.1.0\n  - package: calogica/dbt_expectations\n    version: 0.8.0</code></pre>\n            <p>Running <code>dbt deps</code> downloads these packages to your project folder.</p>\n            <h3>Popular Packages</h3>\n            <ul>\n                <li><strong>dbt_utils:</strong> Standard utility macros (like surrogate keys generating, pivoting, unioning).</li>\n                <li><strong>dbt_expectations:</strong> Port of Python Great Expectations tests for advanced data testing.</li>\n                <li><strong>codegen:</strong> Macros to automatically write staging model files and schemas, saving hours of manual coding.</li>\n                <li><strong>audit_helper:</strong> Runs outer joins comparing development model tables with production tables to check migration issues.</li>\n            </ul>\n        ",
+    "theory": "\n            <h3>Package Management</h3>\n            <p>dbt allows importing external libraries from the dbt Hub Registry. You declare package dependencies in a <code>packages.yml</code> file:</p>\n            <pre><code>packages:\n<ul>\n    <li>package: dbt-labs/dbt_utils</li>\n</ul>\n    version: 1.1.0\n<ul>\n    <li>package: calogica/dbt_expectations</li>\n</ul>\n    version: 0.8.0</code></pre>\n            <p>Running <code>dbt deps</code> downloads these packages to your project folder.</p>\n            <h3>Popular Packages</h3>\n            <ul>\n                <li><strong>dbt_utils:</strong> Standard utility macros (like surrogate keys generating, pivoting, unioning).</li>\n                <li><strong>dbt_expectations:</strong> Port of Python Great Expectations tests for advanced data testing.</li>\n                <li><strong>codegen:</strong> Macros to automatically write staging model files and schemas, saving hours of manual coding.</li>\n                <li><strong>audit_helper:</strong> Runs outer joins comparing development model tables with production tables to check migration issues.</li>\n            </ul>\n        ",
     "hasDiagram": false,
     "hasTable": false,
     "interviewQuestions": [
@@ -251,7 +263,7 @@ window.dbtLessons = {
     "subtitle": "Mixed SQL/Python DAGs, DataFrame transformations, and Snowpark.",
     "duration": "🕒 15 min read",
     "difficulty": "Advanced",
-    "theory": "\n            <h3>Python Models in dbt</h3>\n            <p>Data science tasks or complex string cleanups can be difficult in SQL. dbt allows you to write models in **Python** (for Snowflake, Databricks, or BigQuery). Python models return a DataFrame which dbt materializes as a table/view:</p>\n            <pre><code>def model(dbt, session):\n    dbt.config(materialized=\"table\")\n    my_sql_model = dbt.ref(\"stg_orders\")\n    \n    # Python DataFrame operations\n    df = my_sql_model.filter(my_sql_model[\"price\"] > 100)\n    return df</code></pre>\n            <p>This allows mixed pipelines where SQL models load staging layers, and Python models calculate statistical scores or train ML models.</p>\n        ",
+    "theory": "\n            <h3>Python Models in dbt</h3>\n            <p>Data science tasks or complex string cleanups can be difficult in SQL. dbt allows you to write models in <strong>Python</strong> (for Snowflake, Databricks, or BigQuery). Python models return a DataFrame which dbt materializes as a table/view:</p>\n            <pre><code>def model(dbt, session):\n    dbt.config(materialized=\"table\")\n    my_sql_model = dbt.ref(\"stg_orders\")\n    \n    # Python DataFrame operations\n    df = my_sql_model.filter(my_sql_model[\"price\"] > 100)\n    return df</code></pre>\n            <p>This allows mixed pipelines where SQL models load staging layers, and Python models calculate statistical scores or train ML models.</p>\n        ",
     "hasDiagram": false,
     "hasTable": false,
     "interviewQuestions": [
@@ -269,11 +281,11 @@ window.dbtLessons = {
     "id": "4.1",
     "stage": "Stage 4: Enterprise Ops & CI/CD",
     "module": "Metrics & Semantic Layer",
-    "title": "dbt Semantic Layer & MetricFlow",
-    "subtitle": "Defining measures, metrics, dimensions, and semantic access models.",
+    "title": "Semantic Layer & Consumption",
+    "subtitle": "MetricFlow, Measures vs Metrics, and BI Integration.",
     "duration": "🕒 15 min read",
     "difficulty": "Advanced",
-    "theory": "\n            <h3>What is the Semantic Layer?</h3>\n            <p>Previously, BI tools defined business metrics (like 'revenue' or 'churn') separately, causing calculation inconsistencies. The **dbt Semantic Layer** (using **MetricFlow**) lets you define metrics in dbt configuration files. BI tools query these metrics via APIs, ensuring everyone uses the same math.</p>\n            <h3>Semantic Components</h3>\n            <ul>\n                <li><strong>Measure:</strong> Core numerical metrics (e.g. sum of order totals, count of customer IDs).</li>\n                <li><strong>Dimension:</strong> Categorical attributes (e.g. order date, customer country).</li>\n                <li><strong>Metric:</strong> The final calculated KPI, combining measures over dimensions (e.g., Average Order Value).</li>\n            </ul>\n        ",
+    "theory": "\n            <h3>What is the dbt Semantic Layer?</h3>\n            <p>The Semantic Layer (powered by MetricFlow) allows you to define business metrics centrally in dbt, ensuring that every downstream BI tool (Tableau, Hex, PowerBI) queries the exact same definitions.</p>\n            <h3>Measures vs. Metrics</h3>\n            <ul>\n                <li><strong>Measures:</strong> The raw aggregations (e.g., <code>sum(revenue)</code>).</li>\n                <li><strong>Metrics:</strong> Business logic applied to measures (e.g., <code>sum(revenue)</code> where <code>status = 'completed'</code> and <code>is_test = false</code>).</li>\n            </ul>\n            <h3>Consumption Tools Integration</h3>\n            <p>Instead of writing SQL in BI tools, analysts query the Semantic Layer APIs. If a metric definition changes in dbt, it instantly propagates to all connected tools without requiring dashboard rewrites.</p>\n        ",
     "hasDiagram": false,
     "hasTable": false,
     "interviewQuestions": [
@@ -284,6 +296,14 @@ window.dbtLessons = {
         {
             "question": "What is the difference between a Measure and a Metric in MetricFlow?",
             "answer": "A Measure is an aggregation input directly from database columns (like SUM of sales). A Metric is the final business KPI defined on top of one or more measures (like Gross Profit Margin)."
+        },
+        {
+            "question": "What is the core problem the dbt Semantic Layer solves?",
+            "answer": "It eliminates metric inconsistency caused by each BI tool defining the same business metric independently with different SQL logic. By centralizing metric definitions in dbt using MetricFlow, all downstream tools (Tableau, Looker, Python notebooks) query the same pre-defined metric logic through a single API, ensuring every report shows the same number."
+        },
+        {
+            "question": "What is the difference between a Measure and a Metric in dbt MetricFlow?",
+            "answer": "A Measure is a raw aggregation defined on a semantic model (e.g. SUM(revenue_amount)). A Metric is a higher-level business concept built on top of measures, optionally with filters, ratios, or cumulative windows applied. Multiple metrics can reference the same underlying measure with different filters or time grains."
         }
     ]
 },
@@ -335,7 +355,7 @@ window.dbtLessons = {
     "subtitle": "Document and track downstream consumers of your dbt models in dashboards and ML pipelines.",
     "duration": "🕒 10 min read",
     "difficulty": "Intermediate",
-    "theory": "\n            <h3>What are Exposures?</h3>\n            <p><strong>Exposures</strong> are dbt metadata objects that document the downstream consumers of your models — BI dashboards, ML models, APIs, and other data products. They create a complete lineage picture showing not just how raw data becomes models, but how models are consumed externally.</p>\n            <pre><code>-- exposures.yml\nexposures:\n  - name: weekly_sales_dashboard\n    type: dashboard\n    maturity: high\n    url: https://metabase.company.com/dashboard/12\n    description: |\n      Tracks weekly revenue by region.\n      Used by the Sales leadership team every Monday.\n    owner:\n      name: Priyanshu Kadia\n      email: priyanshu@company.com\n    depends_on:\n      - ref('fct_sales')\n      - ref('dim_customers')</code></pre>\n            <h3>Why Exposures Matter</h3>\n            <ul>\n                <li><strong>Impact analysis:</strong> When you modify a source model, dbt can show which downstream dashboards and ML pipelines depend on it, helping you assess risk before deploying.</li>\n                <li><strong>Documentation:</strong> Exposures appear in dbt Docs as nodes in the DAG, showing the full data lineage from raw sources through models to business outputs.</li>\n                <li><strong>Team ownership:</strong> Each exposure has an owner field, making it clear who to notify when upstream models change.</li>\n                <li><strong>Freshness SLAs:</strong> You can specify a maturity level (low/medium/high) to indicate business criticality and set expectations for data freshness.</li>\n            </ul>\n            <h3>Exposure Types</h3>\n            <p>dbt supports the following exposure types: <code>dashboard</code>, <code>notebook</code>, <code>analysis</code>, <code>ml</code>, <code>application</code>. The type is metadata-only and does not change dbt's build behavior.</p>\n        ",
+    "theory": "\n            <h3>What are Exposures?</h3>\n            <p><strong>Exposures</strong> are dbt metadata objects that document the downstream consumers of your models — BI dashboards, ML models, APIs, and other data products. They create a complete lineage picture showing not just how raw data becomes models, but how models are consumed externally.</p>\n            <pre><code>-- exposures.yml\nexposures:\n<ul>\n    <li>name: weekly_sales_dashboard</li>\n</ul>\n    type: dashboard\n    maturity: high\n    url: https://metabase.company.com/dashboard/12\n    description: |\n      Tracks weekly revenue by region.\n      Used by the Sales leadership team every Monday.\n    owner:\n      name: Data Engineering Team\n      email: de-team@company.com\n    depends_on:\n<ul>\n    <li>ref('fct_sales')</li>\n    <li>ref('dim_customers')</code></pre></li>\n</ul>\n            <h3>Why Exposures Matter</h3>\n            <ul>\n                <li><strong>Impact analysis:</strong> When you modify a source model, dbt can show which downstream dashboards and ML pipelines depend on it, helping you assess risk before deploying.</li>\n                <li><strong>Documentation:</strong> Exposures appear in dbt Docs as nodes in the DAG, showing the full data lineage from raw sources through models to business outputs.</li>\n                <li><strong>Team ownership:</strong> Each exposure has an owner field, making it clear who to notify when upstream models change.</li>\n                <li><strong>Freshness SLAs:</strong> You can specify a maturity level (low/medium/high) to indicate business criticality and set expectations for data freshness.</li>\n            </ul>\n            <h3>Exposure Types</h3>\n            <p>dbt supports the following exposure types: <code>dashboard</code>, <code>notebook</code>, <code>analysis</code>, <code>ml</code>, <code>application</code>. The type is metadata-only and does not change dbt's build behavior.</p>\n        ",
     "hasDiagram": false,
     "hasTable": false,
     "interviewQuestions": [
@@ -402,28 +422,6 @@ window.dbtLessons = {
         {
             "question": "What is dbt Slim CI and how does it reduce build times?",
             "answer": "Slim CI uses dbt's state comparison feature to run only models that have changed since the last successful production run. By comparing the current project against the production manifest.json artifact, dbt identifies modified models and their downstream dependencies, skipping unchanged models entirely. This can reduce CI runtime from 60 minutes to under 5 minutes for large projects."
-        }
-    ]
-},
-    "4.6": {
-    "id": "4.6",
-    "stage": "Stage 4: Enterprise Ops & CI/CD",
-    "module": "Semantic Layer Consumption",
-    "title": "dbt Semantic Layer & Consumption Tools",
-    "subtitle": "Define metrics once in dbt and query them from any BI or analytics tool.",
-    "duration": "🕒 12 min read",
-    "difficulty": "Advanced",
-    "theory": "\n            <h3>The Semantic Layer Problem</h3>\n            <p>Without a semantic layer, every BI tool, notebook, and API independently defines the same metric (e.g. 'revenue') with slightly different SQL logic, causing inconsistent numbers across reports. The <strong>dbt Semantic Layer</strong> solves this by defining metrics centrally in dbt and exposing them through a single querying API.</p>\n            <h3>MetricFlow</h3>\n            <p><strong>MetricFlow</strong> is the underlying engine powering the dbt Semantic Layer. You define metrics, measures, entities, and dimensions in YAML, and MetricFlow compiles them into optimized SQL at query time.</p>\n            <pre><code>-- metrics.yml\nmetrics:\n  - name: total_revenue\n    label: Total Revenue\n    description: Gross revenue before refunds\n    type: simple\n    type_params:\n      measure: revenue_amount\n    filter: |\n      {{ Dimension('order__status') }} = 'completed'</code></pre>\n            <h3>Consumption Interfaces</h3>\n            <ul>\n                <li><strong>dbt Cloud Semantic Layer API:</strong> GraphQL and JDBC endpoints that BI tools query directly.</li>\n                <li><strong>Native BI integrations:</strong> Tableau, Looker, Power BI, and Hex can connect natively via the Semantic Layer API, fetching metrics without raw SQL.</li>\n                <li><strong>Python SDK:</strong> Data scientists query metrics in Jupyter notebooks using the dbt-sl-sdk package.</li>\n                <li><strong>dbt CLI:</strong> 'dbt sl query --metrics total_revenue --group-by metric_time__month' for ad-hoc metric queries.</li>\n            </ul>\n            <h3>Key Benefits</h3>\n            <ul>\n                <li>Single source of truth for metric definitions — change once in dbt, reflects everywhere.</li>\n                <li>Business users query metrics without writing SQL — BI tools fetch pre-defined dimensions and measures.</li>\n                <li>Governance: metric definitions are version-controlled in Git alongside the models that power them.</li>\n            </ul>\n        ",
-    "hasDiagram": false,
-    "hasTable": false,
-    "interviewQuestions": [
-        {
-            "question": "What is the core problem the dbt Semantic Layer solves?",
-            "answer": "It eliminates metric inconsistency caused by each BI tool defining the same business metric independently with different SQL logic. By centralizing metric definitions in dbt using MetricFlow, all downstream tools (Tableau, Looker, Python notebooks) query the same pre-defined metric logic through a single API, ensuring every report shows the same number."
-        },
-        {
-            "question": "What is the difference between a Measure and a Metric in dbt MetricFlow?",
-            "answer": "A Measure is a raw aggregation defined on a semantic model (e.g. SUM(revenue_amount)). A Metric is a higher-level business concept built on top of measures, optionally with filters, ratios, or cumulative windows applied. Multiple metrics can reference the same underlying measure with different filters or time grains."
         }
     ]
 },

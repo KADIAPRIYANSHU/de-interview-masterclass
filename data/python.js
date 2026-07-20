@@ -86,13 +86,17 @@ window.pythonLessons = {
     "subtitle": "Read/write CSV, JSON, and Parquet formats efficiently.",
     "duration": "🕒 15 min read",
     "difficulty": "Intermediate",
-    "theory": "\n            <h3>File I/O in Python</h3>\n            <p>Always use the **Context Manager** (<code>with</code> statement) when opening files. This ensures the file stream is closed automatically when the block finishes, even if exceptions occur, preventing file system locks.</p>\n            <h3>Handling Binary & Columns</h3>\n            <ul>\n                <li><strong>JSON / CSV:</strong> Row-based text formats. Standard libraries: <code>json</code>, <code>csv</code>.</li>\n                <li><strong>Parquet:</strong> Columnar, compressed binary format. Parsed efficiently using <code>pyarrow</code> or <code>pandas</code>. Keeps column schemas internally.</li>\n            </ul>\n        ",
+    "theory": "\n            <h3>Data Formats in Data Engineering</h3>\n            <p>Choosing the right file format is critical for performance and cost. <strong>CSV</strong> and <strong>JSON</strong> are row-based, human-readable, but highly inefficient for querying large datasets.</p>\n            <h3>Parquet & Avro</h3>\n            <ul>\n                <li><strong>Parquet:</strong> A columnar storage format. It is highly optimized for analytical (OLAP) queries. If you only select 2 columns out of 100, Parquet only reads those 2 columns from disk, saving massive I/O.</li>\n                <li><strong>Avro:</strong> A row-based format heavily used in streaming architectures (like Kafka). It embeds the schema within the file, making it excellent for schema evolution.</li>\n            </ul>\n        ",
     "hasDiagram": false,
     "hasTable": false,
     "interviewQuestions": [
         {
             "question": "Why is utilizing the 'with open()' syntax preferred when reading files?",
             "answer": "The `with` statement acts as a Context Manager. It handles opening and guarantees the closing of the file stream immediately when the code block terminates, even if error events occur inside the block."
+        },
+        {
+            "question": "Why is Parquet preferred over CSV for data warehousing?",
+            "answer": "Parquet is columnar, meaning queries that only select a few columns scan exponentially less disk space than CSV. It also supports advanced dictionary encoding and compression, resulting in much smaller file sizes and faster I/O."
         }
     ]
 },
@@ -104,13 +108,17 @@ window.pythonLessons = {
     "subtitle": "Try-except blocks, custom exceptions, and structured logs.",
     "duration": "🕒 12 min read",
     "difficulty": "Intermediate",
-    "theory": "\n            <h3>Robust Error Handling</h3>\n            <p>Avoid bare except catches. Catch specific exceptions (like <code>FileNotFoundError</code>, <code>ValueError</code>) so you don't mask bugs.</p>\n            <h3>Structured Logging</h3>\n            <p>In production pipelines, use Python's built-in <code>logging</code> library instead of simple print statements. Set the root logger configuration level (DEBUG, INFO, WARNING, ERROR) and output format containing dates and severity levels.</p>\n        ",
+    "theory": "\n            <h3>Exception Handling in Pipelines</h3>\n            <p>Data pipelines will fail. Network timeouts occur, schemas change, and API limits are hit. Robust exception handling prevents silent failures and data corruption.</p>\n            <pre><code>try:\n    data = fetch_api_data()\nexcept requests.exceptions.Timeout:\n    logger.error(\"API timeout. Retrying...\")\n    retry_fetch()\nexcept ValueError as e:\n    logger.critical(f\"Schema mismatch: {e}\")\n    raise # Fail the pipeline</code></pre>\n            <h3>Structured Logging</h3>\n            <p>Using basic <code>print()</code> statements is an anti-pattern in production. Use Python's <code>logging</code> module to capture timestamps, severity levels (INFO, WARN, ERROR), and output logs in JSON format for easy ingestion by monitoring tools (like Datadog or ELK).</p>\n        ",
     "hasDiagram": false,
     "hasTable": false,
     "interviewQuestions": [
         {
             "question": "Why should you never write a bare 'except:' clause?",
             "answer": "A bare `except:` catches all exceptions, including KeyboardInterrupt (Ctrl+C) and SystemExit, making it difficult to stop execution manually and hiding unintended coding errors."
+        },
+        {
+            "question": "What is the difference between raising an exception and handling it?",
+            "answer": "Handling an exception (using try/except) allows the program to recover, log the error, and continue running. Raising an exception deliberately crashes the program or propagates the error up the call stack, which is often necessary when continuing would corrupt data."
         }
     ]
 },
@@ -140,13 +148,21 @@ window.pythonLessons = {
     "subtitle": "DataFrames, Series, filtering, and checking null states.",
     "duration": "🕒 15 min read",
     "difficulty": "Intermediate",
-    "theory": "\n            <h3>pandas Basics</h3>\n            <ul>\n                <li><strong>Series:</strong> A 1D labeled array capable of holding any data type.</li>\n                <li><strong>DataFrame:</strong> A 2D labeled data structure with columns of potentially different types (similar to a SQL table).</li>\n            </ul>\n            <p>Use <code>df.isna().sum()</code> to count missing values across columns, and <code>df.loc[]</code> or <code>df.iloc[]</code> for row-level indexing and slicing operations.</p>\n        ",
+    "theory": "\n            <h3>pandas DataFrames</h3>\n            <p>A pandas DataFrame is a 2-dimensional labeled data structure, conceptually similar to a SQL table. It is the workhorse of Python data manipulation.</p>\n            <h3>Memory Limitations</h3>\n            <p>pandas operates strictly <strong>in-memory</strong>. If you try to load a 50GB CSV into pandas on a machine with 16GB of RAM, it will crash with an OutOfMemory error. To handle larger-than-memory datasets, you must either chunk the data (using <code>chunksize</code> in <code>read_csv</code>) or switch to distributed frameworks like PySpark or Polars.</p>\n            <h3>Vectorization vs Iteration</h3>\n            <p>Never use <code>iterrows()</code> or for-loops on a DataFrame unless absolutely necessary. Instead, use vectorized operations (e.g., <code>df['c'] = df['a'] + df['b']</code>) which are executed in highly optimized C code, making them orders of magnitude faster.</p>\n        ",
     "hasDiagram": false,
     "hasTable": false,
     "interviewQuestions": [
         {
             "question": "What is the difference between loc and iloc in pandas?",
             "answer": "<code>loc</code> performs selection based on label indexing (column/row names). <code>iloc</code> performs selection based on physical integer positions (0-indexed)."
+        },
+        {
+            "question": "Your pandas pipeline fails with an OutOfMemory error. How do you fix it without upgrading hardware?",
+            "answer": "You can process the file in chunks using pandas' chunksize parameter, drop unnecessary columns during load using usecols, or specify lighter data types (like categoricals or int32 instead of int64) using the dtype parameter."
+        },
+        {
+            "question": "Why is iterrows() considered an anti-pattern in pandas?",
+            "answer": "Iterrows forces Python to process each row individually at the interpreter level, which is incredibly slow. Vectorized operations bypass the Python loop entirely and execute operations across entire arrays simultaneously in C."
         }
     ]
 },
@@ -176,7 +192,7 @@ window.pythonLessons = {
     "subtitle": "Driver vs. Worker nodes, lazy evaluation, and RDDs vs. DataFrames.",
     "duration": "🕒 18 min read",
     "difficulty": "Advanced",
-    "theory": "\n            <h3>PySpark Architecture</h3>\n            <p>Apache Spark is a distributed cluster computing framework. Key components:</p>\n            <ul>\n                <li><strong>Driver Node:</strong> The master node. Coordinates the execution, parses code, maintains the execution plan, and schedules tasks to executors.</li>\n                <li><strong>Worker Nodes (Executors):</strong> The workhorse machines. They process task partitions assigned by the driver.</li>\n            </ul>\n            <h3>Lazy Evaluation</h3>\n            <p>Spark does not execute transformations (like filtering or projections) immediately. It builds a **Logical Execution Graph (DAG)**. Operations are only compiled and executed when an **Action** (like <code>collect()</code>, <code>write()</code>, <code>count()</code>) is triggered, allowing the optimizer to plan efficiently.</p>\n        ",
+    "theory": "\n            <h3>PySpark Architecture</h3>\n            <p>Apache Spark is a distributed cluster computing framework. Key components:</p>\n            <ul>\n                <li><strong>Driver Node:</strong> The master node. Coordinates the execution, parses code, maintains the execution plan, and schedules tasks to executors.</li>\n                <li><strong>Worker Nodes (Executors):</strong> The workhorse machines. They process task partitions assigned by the driver.</li>\n            </ul>\n            <h3>Lazy Evaluation</h3>\n            <p>Spark does not execute transformations (like filtering or projections) immediately. It builds a <strong>Logical Execution Graph (DAG)</strong>. Operations are only compiled and executed when an <strong>Action</strong> (like <code>collect()</code>, <code>write()</code>, <code>count()</code>) is triggered, allowing the optimizer to plan efficiently.</p>\n        ",
     "hasDiagram": false,
     "hasTable": true,
     "tableData": {
@@ -236,7 +252,7 @@ window.pythonLessons = {
     "subtitle": "Mocking external APIs, database handlers, and writing fixtures.",
     "duration": "🕒 15 min read",
     "difficulty": "Advanced",
-    "theory": "\n            <h3>Unit Testing in Python</h3>\n            <p>We validate python ETL jobs using testing frameworks like **pytest**.</p>\n            <h3>Mocking & Fixtures</h3>\n            <ul>\n                <li><strong>Fixtures:</strong> Reusable setup functions that output test inputs (e.g. creating a temporary mock pandas DataFrame).</li>\n                <li><strong>Mocking:</strong> Simulating external dependencies (like database handlers or HTTP client connections) using the <code>unittest.mock</code> library. This validates ETL logic without hitting live APIs or databases.</li>\n            </ul>\n        ",
+    "theory": "\n            <h3>Unit Testing in Python</h3>\n            <p>We validate python ETL jobs using testing frameworks like <strong>pytest</strong>.</p>\n            <h3>Mocking & Fixtures</h3>\n            <ul>\n                <li><strong>Fixtures:</strong> Reusable setup functions that output test inputs (e.g. creating a temporary mock pandas DataFrame).</li>\n                <li><strong>Mocking:</strong> Simulating external dependencies (like database handlers or HTTP client connections) using the <code>unittest.mock</code> library. This validates ETL logic without hitting live APIs or databases.</li>\n            </ul>\n        ",
     "hasDiagram": false,
     "hasTable": false,
     "interviewQuestions": [
