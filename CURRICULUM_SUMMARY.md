@@ -23,6 +23,7 @@
 | `data/fundamentals.js` | 10-module Data Engineering Fundamentals dataset |
 | `data/devops_obs.js` | 8-module DevOps & Observability curriculum dataset |
 | `data/aide.js` | 8-module AI for Data Engineering curriculum dataset |
+| `data/scenarios.js` | 10-module Real-Time DE Scenarios dataset |
 | `vercel.json` | Vercel static deployment config |
 | `.gitignore` | Git ignore for OS/editor/Vercel artifacts |
 
@@ -223,10 +224,11 @@ d:\Snowflake Learning\
     ├── python.js           # 10 Python modules
     ├── fundamentals.js     # 10 Fundamentals modules
     ├── devops_obs.js       # 8 DevOps & Obs modules
-    └── aide.js             # 8 AI in DE modules
+    ├── aide.js             # 8 AI in DE modules
+    └── scenarios.js        # 10 Real-Time Scenarios modules
 ```
 
-**Total Curriculum:** 94 detailed learning modules across 8 technology domains.
+**Total Curriculum:** 104 detailed learning modules across 9 technology domains.
 
 ---
 

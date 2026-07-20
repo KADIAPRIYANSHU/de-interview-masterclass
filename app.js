@@ -76,6 +76,7 @@ function getActiveSource() {
     if (activeTech === "fundamentals") return window.fundamentalsLessons || {};
     if (activeTech === "devops_obs") return window.devopsObsLessons || {};
     if (activeTech === "aide") return window.aiDeLessons || {};
+    if (activeTech === "scenarios") return window.scenariosLessons || {};
     return {};
 }
 
@@ -86,7 +87,7 @@ function updateProgress() {
     const sources = [
         window.snowflakeLessons, window.adfLessons, window.dbtLessons,
         window.sqlLessons, window.pythonLessons, window.fundamentalsLessons,
-        window.devopsObsLessons, window.aiDeLessons
+        window.devopsObsLessons, window.aiDeLessons, window.scenariosLessons
     ];
     sources.forEach(src => {
         if (src) totalModules += Object.keys(src).length;
@@ -198,6 +199,7 @@ function switchTechnology(tech) {
     else if (tech === "fundamentals") { brandingTitle = "DE Fundamentals"; logoChar = "📚"; }
     else if (tech === "devops_obs") { brandingTitle = "DevOps & Obs"; logoChar = "⚙️"; }
     else if (tech === "aide") { brandingTitle = "AI in DE"; logoChar = "🤖"; }
+    else if (tech === "scenarios") { brandingTitle = "Scenarios"; logoChar = "⏱️"; }
     
     sidebarMainTitle.textContent = brandingTitle;
     logoTitleMobile.textContent = brandingTitle;
