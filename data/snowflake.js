@@ -695,5 +695,130 @@ window.snowflakeLessons = {
     "hasDiagram": false,
     "hasTable": false,
     "interviewQuestions": []
+},
+    "2.6": {
+    "id": "2.6",
+    "stage": "Stage 2: Security, SQL & Modeling",
+    "module": "Governance",
+    "title": "Snowflake Roles (RBAC)",
+    "subtitle": "Understanding system roles in simple language.",
+    "duration": "🕒 10 min read",
+    "difficulty": "Beginner to Intermediate",
+    "theory": "\n        <h3>What are Roles in Snowflake?</h3>\n        <p>In simple terms, think of a Role like a \"job title\" at a company. Instead of giving permissions directly to a person (a User), you give permissions to a Role, and then assign that Role to the User. This is called <strong>Role-Based Access Control (RBAC)</strong>.</p>\n        \n        <h3>The 5 Built-in System Roles</h3>\n        <ul>\n            <li><strong>ACCOUNTADMIN:</strong> The \"CEO\". Has absolute power over everything in the account, including billing, usage, and security. You should tightly restrict who gets this role.</li>\n            <li><strong>SECURITYADMIN:</strong> The \"Security Guard\". Can manage all grants and permissions, and can create/manage users and roles globally.</li>\n            <li><strong>USERADMIN:</strong> The \"HR Dept\". A slightly weaker version of SecurityAdmin. Can create users and roles, but can only manage the ones it created.</li>\n            <li><strong>SYSADMIN:</strong> The \"Operations Manager\". Creates and manages warehouses, databases, and schemas. Custom roles should roll up to SYSADMIN so the operations team can monitor all data objects.</li>\n            <li><strong>PUBLIC:</strong> The \"Guest Pass\". Every user automatically gets this role. It has basic privileges that everyone in the account shares.</li>\n        </ul>\n        \n        <h3>Role Hierarchies</h3>\n        <p>Roles can be granted to other roles. If the \"Data Engineer\" role is granted to the SYSADMIN role, SYSADMIN inherits all permissions that the Data Engineer has. This creates a tree-like hierarchy!</p>\n    ",
+    "hasDiagram": false,
+    "hasTable": false,
+    "interviewQuestions": [
+        {
+            "question": "Why should we avoid giving ACCOUNTADMIN to everyone?",
+            "answer": "ACCOUNTADMIN has control over billing, data sharing, and security. Overusing it violates the principle of least privilege and risks accidental data drops or massive cost overruns."
+        }
+    ]
+},
+    "1.23": {
+    "id": "1.23",
+    "stage": "Stage 1: Core Architecture & Cost",
+    "module": "Data Structures",
+    "title": "Types of Tables",
+    "subtitle": "Permanent, Transient, Temporary, and External.",
+    "duration": "🕒 10 min read",
+    "difficulty": "Intermediate",
+    "theory": "\n        <h3>Snowflake Table Types</h3>\n        <p>Snowflake offers different table types to help you manage storage costs and data lifecycle efficiently. Here they are in simple terms:</p>\n        \n        <ul>\n            <li><strong>Permanent Tables:</strong> The default. They have Time Travel (up to 90 days) and Fail-safe (7 days). Used for production data. (High cost for historical storage).</li>\n            <li><strong>Transient Tables:</strong> Used for data that needs to persist but can be easily recreated if lost (like staging data). They have Time Travel (max 1 day) and <strong>NO Fail-safe</strong>, meaning cheaper storage!</li>\n            <li><strong>Temporary Tables:</strong> Only exist for the duration of your current user session. When you log out, the table vanishes automatically. Also has max 1 day Time Travel and <strong>NO Fail-safe</strong>. Great for intermediate ETL steps.</li>\n            <li><strong>External Tables:</strong> The data doesn't live in Snowflake! It lives in your S3/ADLS/GCS buckets. Snowflake just reads it on the fly. You pay for compute to query it, but not Snowflake storage. Read-only!</li>\n        </ul>\n    ",
+    "hasDiagram": false,
+    "hasTable": true,
+    "tableData": {
+        "title": "Table Types Comparison",
+        "headers": [
+            "Type",
+            "Time Travel",
+            "Fail-safe",
+            "Use Case"
+        ],
+        "rows": [
+            [
+                "Permanent",
+                "Up to 90 days",
+                "7 days",
+                "Core Production Data"
+            ],
+            [
+                "Transient",
+                "Max 1 day",
+                "None",
+                "Recreatable Staging Data"
+            ],
+            [
+                "Temporary",
+                "Max 1 day",
+                "None",
+                "Session-scoped ETL temp data"
+            ],
+            [
+                "External",
+                "None",
+                "None",
+                "Querying Data Lakes directly"
+            ]
+        ]
+    },
+    "interviewQuestions": [
+        {
+            "question": "If I want to save on storage costs for an intermediate ETL table, what type should I use?",
+            "answer": "Use a Temporary table if it's only needed for the session, or a Transient table if it needs to persist across sessions but can be easily recreated. Both avoid the 7-day Fail-safe storage costs."
+        }
+    ]
+},
+    "3.6": {
+    "id": "3.6",
+    "stage": "Stage 3: Enterprise Pipelines",
+    "module": "Data Ingestion",
+    "title": "Types of Stages",
+    "subtitle": "Internal vs External, User vs Table.",
+    "duration": "🕒 8 min read",
+    "difficulty": "Beginner",
+    "theory": "\n        <h3>What is a Stage?</h3>\n        <p>A \"Stage\" is simply a holding area for files (like CSVs or JSON) before they are loaded into Snowflake tables, or after they are unloaded from Snowflake.</p>\n        \n        <h3>The 4 Types of Stages</h3>\n        <ul>\n            <li><strong>User Stage (@~):</strong> Every user gets one automatically. It's meant for your personal files. No one else can see or access it.</li>\n            <li><strong>Table Stage (@%table_name):</strong> Every table gets one automatically. It's a hidden folder tied specifically to that table. If you drop the table, the files in the stage are dropped too.</li>\n            <li><strong>Named Internal Stage (@stage_name):</strong> A stage you explicitly create inside Snowflake. It's not tied to a specific user or table. It offers the most flexibility for sharing files internally across teams.</li>\n            <li><strong>Named External Stage (@stage_name):</strong> This doesn't store files in Snowflake at all! It points to an external cloud storage bucket (like AWS S3 or Azure Blob) using credentials. Snowflake reads directly from your cloud provider.</li>\n        </ul>\n    ",
+    "hasDiagram": false,
+    "hasTable": false,
+    "interviewQuestions": [
+        {
+            "question": "What is the primary difference between a Table stage and a Named Internal stage?",
+            "answer": "A Table stage is tied directly to a single table and cannot be accessed or used to load data into other tables. A Named Internal stage is a standalone object that can be used to load data into multiple different tables."
+        }
+    ]
+},
+    "4.8": {
+    "id": "4.8",
+    "stage": "Stage 4: Ecosystem & Advanced",
+    "module": "CDC Pipelines",
+    "title": "Streams in Depth",
+    "subtitle": "Change Data Capture (CDC) simplified.",
+    "duration": "🕒 15 min read",
+    "difficulty": "Advanced",
+    "theory": "\n        <h3>What is a Stream?</h3>\n        <p>In simple language, a Stream is a <strong>bookmark</strong>. Imagine you are reading a book and you place a bookmark. Next time, you start exactly where you left off. A Snowflake Stream does this for tables—it tracks exactly which rows were INSERTED, UPDATED, or DELETED since the last time you checked.</p>\n        \n        <h3>How it works (The Offset)</h3>\n        <p>A Stream does NOT actually copy data. It just records an \"offset\" (a timestamp) in the background. When you query the stream, it compares the table's current state to the offset, showing you only the delta (the changes). Once you consume the stream (e.g., using an INSERT INTO ... SELECT FROM stream), the bookmark automatically moves forward!</p>\n\n        <h3>Types of Streams</h3>\n        <ul>\n            <li><strong>Standard Stream:</strong> Tracks all INSERTS, UPDATES, and DELETES on standard tables.</li>\n            <li><strong>Append-Only Stream:</strong> Tracks ONLY INSERTS. Great for immutable log tables or external tables.</li>\n            <li><strong>Insert-Only Stream:</strong> Tracks INSERTS specifically for External Tables.</li>\n        </ul>\n        \n        <h3>Stale Streams</h3>\n        <p>A stream relies on Time Travel data. If a table's Time Travel retention is 14 days, and you don't consume the stream for 15 days, the stream becomes <strong>Stale</strong> and cannot be read anymore. You must recreate it.</p>\n    ",
+    "hasDiagram": false,
+    "hasTable": false,
+    "interviewQuestions": [
+        {
+            "question": "Does a Stream store a physical copy of the changed data?",
+            "answer": "No. A stream is simply an offset metadata object pointing to versioned metadata in the table's Time Travel storage. It does not incur additional storage costs for duplicating data."
+        }
+    ]
+},
+    "4.9": {
+    "id": "4.9",
+    "stage": "Stage 4: Ecosystem & Advanced",
+    "module": "Orchestration",
+    "title": "Tasks in Depth",
+    "subtitle": "Automating SQL execution in Snowflake.",
+    "duration": "🕒 15 min read",
+    "difficulty": "Advanced",
+    "theory": "\n        <h3>What is a Task?</h3>\n        <p>In simple language, a Task is Snowflake's built-in scheduler. It allows you to run a single SQL statement (or a Stored Procedure) automatically on a schedule, without needing external tools like Airflow.</p>\n\n        <h3>How are they Scheduled?</h3>\n        <ul>\n            <li><strong>CRON Schedule:</strong> Run on a specific clock time (e.g., \"Every day at 5 AM\", or <code>USING CRON 0 5 * * * UTC</code>).</li>\n            <li><strong>Interval (Non-CRON):</strong> Run every X minutes (e.g., <code>SCHEDULE = '5 MINUTE'</code>).</li>\n            <li><strong>AFTER Trigger:</strong> Run immediately after another Task finishes. This allows you to build a \"Tree\" or \"DAG\" (Directed Acyclic Graph) of tasks!</li>\n        </ul>\n\n        <h3>Compute Models</h3>\n        <ul>\n            <li><strong>User-Managed Warehouse:</strong> You assign a specific warehouse to the task. It wakes up the warehouse, runs the query, and suspends it. You pay for the warehouse size.</li>\n            <li><strong>Serverless Tasks:</strong> You omit the warehouse. Snowflake automatically provisions the exact amount of compute needed on the fly and charges you based on actual compute milliseconds used. Great for highly variable workloads!</li>\n        </ul>\n        \n        <h3>Task & Stream Synergy</h3>\n        <p>Tasks are almost always paired with Streams. A Task can have a condition: <code>WHEN SYSTEM$STREAM_HAS_DATA('my_stream')</code>. This ensures the Task (and its compute cost) only runs if there is actually new data to process!</p>\n    ",
+    "hasDiagram": false,
+    "hasTable": false,
+    "interviewQuestions": [
+        {
+            "question": "How do you avoid wasting credits on a scheduled Task if no new data has arrived?",
+            "answer": "Use a Stream to track data changes, and add a WHEN SYSTEM$STREAM_HAS_DATA clause to the Task definition. The Task will skip execution and consume zero warehouse credits if the stream is empty."
+        }
+    ]
 }
 };
