@@ -1,4 +1,4 @@
-window.aideLessons = {
+window.aiDeLessons = {
     "1.1": {
     "id": "1.1",
     "stage": "Stage 1: AI & Semantic Models",
