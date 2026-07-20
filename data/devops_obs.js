@@ -1,263 +1,228 @@
 window.devopsObsLessons = {
     "1.1": {
-        id: "1.1",
-        stage: "Stage 1: DevOps & Automation",
-        module: "Git & Branching",
-        title: "GitFlow & Collaboration Rules",
-        subtitle: "Version control branching, PR policies, and branch protection.",
-        duration: "🕒 12 min read",
-        difficulty: "Beginner to Intermediate",
-        theory: `
-            <h3>Version Control in Data Engineering</h3>
-            <p>Data pipelines and transformations must be stored in Git repositories. The standard workflow is **GitFlow**:</p>
-            <ul>
-                <li><strong>Main/Production Branch:</strong> Holds compiled, production-tested pipelines. Direct commits are blocked.</li>
-                <li><strong>Develop Branch:</strong> Integration branch for testing.</li>
-                <li><strong>Feature Branches:</strong> Created by developers to add new features or bug fixes.</li>
-            </ul>
-            <h3>Branch Protection Rules</h3>
-            <p>Production branches should require a **Pull Request (PR)**, at least 1-2 reviewer approvals, and successful automated CI testing runs before merging.</p>
-        `,
-        hasDiagram: false,
-        hasTable: false,
-        interviewQuestions: [
+        "id": "1.1",
+        "stage": "Stage 1: DevOps & Automation",
+        "module": "Git & Branching",
+        "title": "GitFlow & Collaboration Rules",
+        "subtitle": "Version control branching, PR policies, and branch protection.",
+        "duration": "🕒 12 min read",
+        "difficulty": "Beginner to Intermediate",
+        "theory": "\n            <h3>Version Control in Data Engineering</h3>\n            <p>Data pipelines and transformations must be stored in Git repositories. The standard workflow is **GitFlow**:</p>\n            <ul>\n                <li><strong>Main/Production Branch:</strong> Holds compiled, production-tested pipelines. Direct commits are blocked.</li>\n                <li><strong>Develop Branch:</strong> Integration branch for testing.</li>\n                <li><strong>Feature Branches:</strong> Created by developers to add new features or bug fixes.</li>\n            </ul>\n            <h3>Branch Protection Rules</h3>\n            <p>Production branches should require a **Pull Request (PR)**, at least 1-2 reviewer approvals, and successful automated CI testing runs before merging.</p>\n        ",
+        "hasDiagram": false,
+        "hasTable": false,
+        "interviewQuestions": [
             {
-                question: "What is GitFlow and why is direct committing to main blocked in enterprise settings?",
-                answer: "GitFlow is a branching model that isolates development from production. Blocking direct commits to main ensures all code is peer-reviewed via Pull Requests and passes automated test suites before deployment, preventing production outages."
+                "question": "What is GitFlow and why is direct committing to main blocked in enterprise settings?",
+                "answer": "GitFlow is a branching model that isolates development from production. Blocking direct commits to main ensures all code is peer-reviewed via Pull Requests and passes automated test suites before deployment, preventing production outages."
             }
         ]
     },
     "1.2": {
-        id: "1.2",
-        stage: "Stage 1: DevOps & Automation",
-        module: "CI/CD Pipelines",
-        title: "CI/CD Deployment Pipelines",
-        subtitle: "GitHub Actions, Azure DevOps, and automated pipeline validation.",
-        duration: "🕒 15 min read",
-        difficulty: "Intermediate",
-        theory: `
-            <h3>CI/CD Lifecycle</h3>
-            <ul>
-                <li><strong>Continuous Integration (CI):</strong> Triggered when a PR is opened. Automatically compiles code, runs SQL/dbt linters, checks formatting, and runs unit tests using mock datasets.</li>
-                <li><strong>Continuous Deployment (CD):</strong> Triggered when code merges to main. Automatically packages compiled code, logs metadata, and deploys ARM templates or SQL objects to the target database.</li>
-            </ul>
-        `,
-        hasDiagram: false,
-        hasTable: false,
-        interviewQuestions: [
+        "id": "1.2",
+        "stage": "Stage 1: DevOps & Automation",
+        "module": "CI/CD Pipelines",
+        "title": "CI/CD Deployment Pipelines",
+        "subtitle": "GitHub Actions, Azure DevOps, and automated pipeline validation.",
+        "duration": "🕒 15 min read",
+        "difficulty": "Intermediate",
+        "theory": "\n            <h3>CI/CD Lifecycle</h3>\n            <ul>\n                <li><strong>Continuous Integration (CI):</strong> Triggered when a PR is opened. Automatically compiles code, runs SQL/dbt linters, checks formatting, and runs unit tests using mock datasets.</li>\n                <li><strong>Continuous Deployment (CD):</strong> Triggered when code merges to main. Automatically packages compiled code, logs metadata, and deploys ARM templates or SQL objects to the target database.</li>\n            </ul>\n        ",
+        "hasDiagram": false,
+        "hasTable": false,
+        "interviewQuestions": [
             {
-                question: "Describe your typical CI/CD release pipeline for a dbt project.",
-                answer: "1. PR opens: Trigger CI runner. 2. Run dbt linting and code formatting checks. 3. Compile SQL and execute unit tests on a test target schema using Slim CI. 4. Code merges to main: Trigger CD. 5. Deploy compiled scripts to the production schema and update documentation."
+                "question": "Describe your typical CI/CD release pipeline for a dbt project.",
+                "answer": "1. PR opens: Trigger CI runner. 2. Run dbt linting and code formatting checks. 3. Compile SQL and execute unit tests on a test target schema using Slim CI. 4. Code merges to main: Trigger CD. 5. Deploy compiled scripts to the production schema and update documentation."
             }
         ]
     },
     "1.3": {
-        id: "1.3",
-        stage: "Stage 1: DevOps & Automation",
-        module: "Infrastructure as Code",
-        title: "Infrastructure as Code (IaC)",
-        subtitle: "Terraform, Bicep, and automated resource provisioning.",
-        duration: "🕒 15 min read",
-        difficulty: "Advanced",
-        theory: `
-            <h3>IaC in Data Engineering</h3>
-            <p>Provisioning warehouses, databases, storage accounts, and pipelines manually leads to drift between Dev and Prod configurations. We use IaC to declare infrastructure in code files:</p>
-            <ul>
-                <li><strong>Terraform:</strong> Provider-agnostic engine that uses HCL (HashiCorp Configuration Language) and tracks resources using a State File.</li>
-                <li><strong>Bicep / ARM:</strong> Azure-specific declarative infrastructure files.</li>
-            </ul>
-        `,
-        hasDiagram: false,
-        hasTable: false,
-        interviewQuestions: [
+        "id": "1.3",
+        "stage": "Stage 1: DevOps & Automation",
+        "module": "Infrastructure as Code",
+        "title": "Infrastructure as Code (IaC)",
+        "subtitle": "Terraform, Bicep, and automated resource provisioning.",
+        "duration": "🕒 15 min read",
+        "difficulty": "Advanced",
+        "theory": "\n            <h3>IaC in Data Engineering</h3>\n            <p>Provisioning warehouses, databases, storage accounts, and pipelines manually leads to drift between Dev and Prod configurations. We use IaC to declare infrastructure in code files:</p>\n            <ul>\n                <li><strong>Terraform:</strong> Provider-agnostic engine that uses HCL (HashiCorp Configuration Language) and tracks resources using a State File.</li>\n                <li><strong>Bicep / ARM:</strong> Azure-specific declarative infrastructure files.</li>\n            </ul>\n        ",
+        "hasDiagram": false,
+        "hasTable": false,
+        "interviewQuestions": [
             {
-                question: "Why use Terraform or Bicep instead of manually creating database resources?",
-                answer: "IaC ensures environment consistency, eliminates resource drift between Dev and Prod, tracks infrastructure history in Git, and automates deployments through CI/CD release pipelines."
+                "question": "Why use Terraform or Bicep instead of manually creating database resources?",
+                "answer": "IaC ensures environment consistency, eliminates resource drift between Dev and Prod, tracks infrastructure history in Git, and automates deployments through CI/CD release pipelines."
             }
         ]
     },
     "2.1": {
-        id: "2.1",
-        stage: "Stage 2: Observability & Monitoring",
-        module: "Structured Logging",
-        title: "Structured Logging & Audit Logs",
-        subtitle: "Designing custom logs, execution IDs, and audit tables.",
-        duration: "🕒 12 min read",
-        difficulty: "Intermediate",
-        theory: `
-            <h3>Structured Logging</h3>
-            <p>Pipelines should generate logs in structured formats (like JSON) containing standardized keys. This makes it easy for indexing tools (like Splunk or Log Analytics) to parse and query execution metrics.</p>
-            <h3>Execution Tracing</h3>
-            <p>Every pipeline run must be tagged with a unique **Execution GUID**. This ID is passed to all sub-pipelines and query tags, allowing developers to trace the logs of a single workflow run across multiple systems.</p>
-        `,
-        hasDiagram: false,
-        hasTable: false,
-        interviewQuestions: [
+        "id": "2.1",
+        "stage": "Stage 2: Observability & Monitoring",
+        "module": "Structured Logging",
+        "title": "Structured Logging & Audit Logs",
+        "subtitle": "Designing custom logs, execution IDs, and audit tables.",
+        "duration": "🕒 12 min read",
+        "difficulty": "Intermediate",
+        "theory": "\n            <h3>Structured Logging</h3>\n            <p>Pipelines should generate logs in structured formats (like JSON) containing standardized keys. This makes it easy for indexing tools (like Splunk or Log Analytics) to parse and query execution metrics.</p>\n            <h3>Execution Tracing</h3>\n            <p>Every pipeline run must be tagged with a unique **Execution GUID**. This ID is passed to all sub-pipelines and query tags, allowing developers to trace the logs of a single workflow run across multiple systems.</p>\n        ",
+        "hasDiagram": false,
+        "hasTable": false,
+        "interviewQuestions": [
             {
-                question: "What is Structured Logging and why is it important in production pipelines?",
-                answer: "Structured Logging writes logs in a machine-readable JSON format with standard key-value fields. This enables log analyzers to quickly filter, parse, and aggregate log metrics, speeding up troubleshooting."
+                "question": "What is Structured Logging and why is it important in production pipelines?",
+                "answer": "Structured Logging writes logs in a machine-readable JSON format with standard key-value fields. This enables log analyzers to quickly filter, parse, and aggregate log metrics, speeding up troubleshooting."
             }
         ]
     },
     "2.2": {
-        id: "2.2",
-        stage: "Stage 2: Observability & Monitoring",
-        module: "Telemetry Monitoring",
-        title: "Observability & Dashboard Telemetry",
-        subtitle: "Query history logs, CPU/Memory health, and performance monitors.",
-        duration: "🕒 15 min read",
-        difficulty: "Intermediate",
-        theory: `
-            <h3>Data Observability</h3>
-            <p>Observability focuses on system health metrics: query history, resource consumption (credits, CPU, memory), and pipeline run status. Monitoring metrics let you create alerts before jobs fail (e.g., alert if pipeline runtime exceeds historical averages by 50%).</p>
-        `,
-        hasDiagram: false,
-        hasTable: false,
-        interviewQuestions: [
+        "id": "2.2",
+        "stage": "Stage 2: Observability & Monitoring",
+        "module": "Telemetry Monitoring",
+        "title": "Observability & Dashboard Telemetry",
+        "subtitle": "Query history logs, CPU/Memory health, and performance monitors.",
+        "duration": "🕒 15 min read",
+        "difficulty": "Intermediate",
+        "theory": "\n            <h3>Data Observability</h3>\n            <p>Observability focuses on system health metrics: query history, resource consumption (credits, CPU, memory), and pipeline run status. Monitoring metrics let you create alerts before jobs fail (e.g., alert if pipeline runtime exceeds historical averages by 50%).</p>\n        ",
+        "hasDiagram": false,
+        "hasTable": false,
+        "interviewQuestions": [
             {
-                question: "How do you detect if a pipeline is running longer than usual due to a system lock?",
-                answer: "Monitor execution runtimes in your log database. Compare active running times against the rolling average duration of the previous 30 days. Trigger a warning alert if runtime exceeds the average by 2 standard deviations."
+                "question": "How do you detect if a pipeline is running longer than usual due to a system lock?",
+                "answer": "Monitor execution runtimes in your log database. Compare active running times against the rolling average duration of the previous 30 days. Trigger a warning alert if runtime exceeds the average by 2 standard deviations."
             }
         ]
     },
     "2.3": {
-        id: "2.3",
-        stage: "Stage 2: Observability & Monitoring",
-        module: "SLA Alerts",
-        title: "SLA, SLO & Alerting Frameworks",
-        subtitle: "SLA/SLO metric parameters and Logic Apps / Slack integration alerts.",
-        duration: "🕒 15 min read",
-        difficulty: "Intermediate",
-        theory: `
-            <h3>SLA vs. SLO</h3>
-            <ul>
-                <li><strong>SLA (Service Level Agreement):</strong> The formal commitment to stakeholders (e.g. Sales dashboard must refresh by 6:00 AM daily).</li>
-                <li><strong>SLO (Service Level Objective):</strong> The internal performance target (e.g. Sales pipeline must finish by 5:30 AM 99% of the time) to prevent SLA breaches.</li>
-            </ul>
-        `,
-        hasDiagram: false,
-        hasTable: false,
-        interviewQuestions: [
+        "id": "2.3",
+        "stage": "Stage 2: Observability & Monitoring",
+        "module": "SLA Alerts",
+        "title": "SLA, SLO & Alerting Frameworks",
+        "subtitle": "SLA/SLO metric parameters and Logic Apps / Slack integration alerts.",
+        "duration": "🕒 15 min read",
+        "difficulty": "Intermediate",
+        "theory": "\n            <h3>SLA vs. SLO</h3>\n            <ul>\n                <li><strong>SLA (Service Level Agreement):</strong> The formal commitment to stakeholders (e.g. Sales dashboard must refresh by 6:00 AM daily).</li>\n                <li><strong>SLO (Service Level Objective):</strong> The internal performance target (e.g. Sales pipeline must finish by 5:30 AM 99% of the time) to prevent SLA breaches.</li>\n            </ul>\n        ",
+        "hasDiagram": false,
+        "hasTable": false,
+        "interviewQuestions": [
             {
-                question: "How do you configure alerting to prevent SLA breaches?",
-                answer: "Set up warning alerts targeting the SLO timeline (e.g. alert if job is not completed by 5:30 AM). Send alerts to Slack/Teams using Webhooks or trigger PagerDuty schedules for high-priority incidents."
+                "question": "How do you configure alerting to prevent SLA breaches?",
+                "answer": "Set up warning alerts targeting the SLO timeline (e.g. alert if job is not completed by 5:30 AM). Send alerts to Slack/Teams using Webhooks or trigger PagerDuty schedules for high-priority incidents."
             }
         ]
     },
     "2.4": {
-        id: "2.4",
-        stage: "Stage 2: Observability & Monitoring",
-        module: "Data Lineage",
-        title: "Data Lineage",
-        subtitle: "Column-level lineage, dependency mappings, and impact analysis.",
-        duration: "🕒 12 min read",
-        difficulty: "Intermediate",
-        theory: `
-            <h3>What is Data Lineage?</h3>
-            <p>Data Lineage tracks data flow from source files down to intermediate transformations, final tables, and downstream BI reports. It answers the question: *'Where did this column value come from?'*</p>
-            <p><strong>Impact Analysis:</strong> Checking data lineage before modifying a column schema to ensure we don't break downstream tables or dashboards.</p>
-        `,
-        hasDiagram: false,
-        hasTable: false,
-        interviewQuestions: [
+        "id": "2.4",
+        "stage": "Stage 2: Observability & Monitoring",
+        "module": "Data Lineage",
+        "title": "Data Lineage",
+        "subtitle": "Column-level lineage, dependency mappings, and impact analysis.",
+        "duration": "🕒 12 min read",
+        "difficulty": "Intermediate",
+        "theory": "\n            <h3>What is Data Lineage?</h3>\n            <p>Data Lineage tracks data flow from source files down to intermediate transformations, final tables, and downstream BI reports. It answers the question: *'Where did this column value come from?'*</p>\n            <p><strong>Impact Analysis:</strong> Checking data lineage before modifying a column schema to ensure we don't break downstream tables or dashboards.</p>\n        ",
+        "hasDiagram": false,
+        "hasTable": false,
+        "interviewQuestions": [
             {
-                question: "How does Data Lineage help you perform an Impact Analysis?",
-                answer: "Data Lineage maps column dependencies. If you need to drop or rename a column in a staging table, you consult the lineage map to identify all downstream models and reports that read that column, allowing you to update them first."
+                "question": "How does Data Lineage help you perform an Impact Analysis?",
+                "answer": "Data Lineage maps column dependencies. If you need to drop or rename a column in a staging table, you consult the lineage map to identify all downstream models and reports that read that column, allowing you to update them first."
             }
         ]
     },
     "2.5": {
-        id: "2.5",
-        stage: "Stage 2: Observability & Monitoring",
-        module: "Governance",
-        title: "Data Governance & Catalogs",
-        subtitle: "Azure Purview, Collibra, data classification, and metadata indexing.",
-        duration: "🕒 15 min read",
-        difficulty: "Intermediate",
-        theory: `
-            <h3>Data Governance</h3>
-            <p>Data Governance manages security, compliance, and searchability of enterprise datasets. Tools like **Azure Purview** or **Collibra** index metadata, tag columns with business glossary terms, and classify sensitive information (e.g., tagging SSNs or Credit Card columns as PII).</p>
-        `,
-        hasDiagram: false,
-        hasTable: false,
-        interviewQuestions: [
+        "id": "2.5",
+        "stage": "Stage 2: Observability & Monitoring",
+        "module": "Governance",
+        "title": "Data Governance & Catalogs",
+        "subtitle": "Azure Purview, Collibra, data classification, and metadata indexing.",
+        "duration": "🕒 15 min read",
+        "difficulty": "Intermediate",
+        "theory": "\n            <h3>Data Governance</h3>\n            <p>Data Governance manages security, compliance, and searchability of enterprise datasets. Tools like **Azure Purview** or **Collibra** index metadata, tag columns with business glossary terms, and classify sensitive information (e.g., tagging SSNs or Credit Card columns as PII).</p>\n        ",
+        "hasDiagram": false,
+        "hasTable": false,
+        "interviewQuestions": [
             {
-                question: "What is the role of a Data Catalog in a modern data platform?",
-                answer: "A Data Catalog indexes metadata from all databases and stages, acts as a searchable dictionary for business users, tracks data lineage, and classifies sensitive data (PII) to enforce security masking policies automatically."
+                "question": "What is the role of a Data Catalog in a modern data platform?",
+                "answer": "A Data Catalog indexes metadata from all databases and stages, acts as a searchable dictionary for business users, tracks data lineage, and classifies sensitive data (PII) to enforce security masking policies automatically."
             }
         ]
     },
     "2.6": {
-        id: "2.6",
-        stage: "Stage 2: Observability & Monitoring",
-        module: "Blue/Green & Canary Deployments",
-        title: "Blue/Green & Canary Deployments for Data Pipelines",
-        subtitle: "Deploy data pipeline changes safely with zero downtime and instant rollback capability.",
-        duration: "🕒 15 min read",
-        difficulty: "Advanced",
-        theory: `
-            <h3>Why Deployment Strategies Matter for Data</h3>
-            <p>Unlike application deployments where a bug is quickly visible and reversible, data pipeline bugs silently corrupt datasets that downstream reports and ML models depend on. <strong>Blue/Green</strong> and <strong>Canary</strong> strategies reduce this risk by enabling parallel validation before production cutover.</p>
-            <h3>Blue/Green Deployment</h3>
-            <p>In a <strong>Blue/Green deployment</strong>, you maintain two identical pipeline environments: <strong>Blue</strong> (current production) and <strong>Green</strong> (new version). You deploy the new pipeline to Green, validate it against production data, then atomically switch all traffic/consumers to Green. Blue remains on standby for instant rollback.</p>
-            <ul>
-                <li><strong>Step 1:</strong> Deploy new pipeline version to Green environment writing to a <code>_green</code> target table or schema.</li>
-                <li><strong>Step 2:</strong> Run Green for 1-7 days in parallel with Blue, comparing row counts, aggregates, and business KPIs between the two outputs.</li>
-                <li><strong>Step 3:</strong> Swap the production alias/view to point to the Green table. Downstream consumers (BI tools, APIs) automatically read from Green without reconfiguration.</li>
-                <li><strong>Step 4:</strong> Monitor Green for 24-48 hours. If issues arise, swap the alias back to Blue instantly — zero data loss.</li>
-            </ul>
-            <pre><code>-- Blue/Green swap using a view alias
--- Step 1: Both pipelines run in parallel
-CREATE OR REPLACE VIEW prod.orders AS SELECT * FROM prod.orders_blue;  -- production
-CREATE OR REPLACE VIEW prod.orders_green_view AS SELECT * FROM prod.orders_green;  -- validation
-
--- Step 2: Validate green output matches blue
-SELECT COUNT(*) FROM prod.orders_blue;   -- expected: 10,000,000
-SELECT COUNT(*) FROM prod.orders_green;  -- must match
-
--- Step 3: Atomic cutover
-CREATE OR REPLACE VIEW prod.orders AS SELECT * FROM prod.orders_green;
-
--- Step 4: Rollback if needed (instant)
-CREATE OR REPLACE VIEW prod.orders AS SELECT * FROM prod.orders_blue;</code></pre>
-            <h3>Canary Deployment</h3>
-            <p>A <strong>Canary deployment</strong> routes a small percentage of data through the new pipeline version to validate correctness before full rollout. This is useful for high-volume streaming pipelines where running two full copies in parallel is too expensive.</p>
-            <ul>
-                <li><strong>Routing strategy:</strong> Hash the primary key (e.g. customer_id) and route 5% of records to the new pipeline version.</li>
-                <li><strong>Validation:</strong> Compare metrics from the canary output against the same cohort processed by the production pipeline.</li>
-                <li><strong>Gradual rollout:</strong> Increase canary percentage from 5% → 20% → 50% → 100% as confidence grows.</li>
-            </ul>
-            <pre><code>-- Canary routing in Snowflake Streams + Tasks
--- Route 5% of orders to new pipeline by hash
-INSERT INTO orders_new_pipeline
-SELECT * FROM orders_stream
-WHERE HASH(order_id) % 100 < 5;  -- 5% canary
-
-INSERT INTO orders_prod_pipeline
-SELECT * FROM orders_stream
-WHERE HASH(order_id) % 100 >= 5;  -- 95% production</code></pre>
-            <h3>Key Differences</h3>
-            <ul>
-                <li><strong>Blue/Green:</strong> Full parallel copy, instant atomic cutover. Higher cost but maximum safety. Best for batch pipelines and schema migrations.</li>
-                <li><strong>Canary:</strong> Partial traffic split, gradual rollout. Lower cost. Best for high-volume streaming pipelines where full duplication is expensive.</li>
-            </ul>
-        `,
-        hasDiagram: false,
-        hasTable: true,
-        tableData: {
-            headers: ["Dimension", "Blue/Green", "Canary"],
-            rows: [
-                ["Traffic split", "0% / 100% (hard cutover)", "Gradual % increase"],
-                ["Cost", "2x compute during validation", "~5-50% overhead"],
-                ["Rollback speed", "Instant (alias swap)", "Gradual re-routing"],
-                ["Best for", "Batch pipelines, schema changes", "High-volume streaming"],
-                ["Validation period", "Days to weeks", "Hours to days"]
+        "id": "2.6",
+        "stage": "Stage 2: Observability & Monitoring",
+        "module": "Blue/Green & Canary Deployments",
+        "title": "Blue/Green & Canary Deployments for Data Pipelines",
+        "subtitle": "Deploy data pipeline changes safely with zero downtime and instant rollback capability.",
+        "duration": "🕒 15 min read",
+        "difficulty": "Advanced",
+        "theory": "\n            <h3>Why Deployment Strategies Matter for Data</h3>\n            <p>Unlike application deployments where a bug is quickly visible and reversible, data pipeline bugs silently corrupt datasets that downstream reports and ML models depend on. <strong>Blue/Green</strong> and <strong>Canary</strong> strategies reduce this risk by enabling parallel validation before production cutover.</p>\n            <h3>Blue/Green Deployment</h3>\n            <p>In a <strong>Blue/Green deployment</strong>, you maintain two identical pipeline environments: <strong>Blue</strong> (current production) and <strong>Green</strong> (new version). You deploy the new pipeline to Green, validate it against production data, then atomically switch all traffic/consumers to Green. Blue remains on standby for instant rollback.</p>\n            <ul>\n                <li><strong>Step 1:</strong> Deploy new pipeline version to Green environment writing to a <code>_green</code> target table or schema.</li>\n                <li><strong>Step 2:</strong> Run Green for 1-7 days in parallel with Blue, comparing row counts, aggregates, and business KPIs between the two outputs.</li>\n                <li><strong>Step 3:</strong> Swap the production alias/view to point to the Green table. Downstream consumers (BI tools, APIs) automatically read from Green without reconfiguration.</li>\n                <li><strong>Step 4:</strong> Monitor Green for 24-48 hours. If issues arise, swap the alias back to Blue instantly — zero data loss.</li>\n            </ul>\n            <pre><code>-- Blue/Green swap using a view alias\n-- Step 1: Both pipelines run in parallel\nCREATE OR REPLACE VIEW prod.orders AS SELECT * FROM prod.orders_blue;  -- production\nCREATE OR REPLACE VIEW prod.orders_green_view AS SELECT * FROM prod.orders_green;  -- validation\n\n-- Step 2: Validate green output matches blue\nSELECT COUNT(*) FROM prod.orders_blue;   -- expected: 10,000,000\nSELECT COUNT(*) FROM prod.orders_green;  -- must match\n\n-- Step 3: Atomic cutover\nCREATE OR REPLACE VIEW prod.orders AS SELECT * FROM prod.orders_green;\n\n-- Step 4: Rollback if needed (instant)\nCREATE OR REPLACE VIEW prod.orders AS SELECT * FROM prod.orders_blue;</code></pre>\n            <h3>Canary Deployment</h3>\n            <p>A <strong>Canary deployment</strong> routes a small percentage of data through the new pipeline version to validate correctness before full rollout. This is useful for high-volume streaming pipelines where running two full copies in parallel is too expensive.</p>\n            <ul>\n                <li><strong>Routing strategy:</strong> Hash the primary key (e.g. customer_id) and route 5% of records to the new pipeline version.</li>\n                <li><strong>Validation:</strong> Compare metrics from the canary output against the same cohort processed by the production pipeline.</li>\n                <li><strong>Gradual rollout:</strong> Increase canary percentage from 5% → 20% → 50% → 100% as confidence grows.</li>\n            </ul>\n            <pre><code>-- Canary routing in Snowflake Streams + Tasks\n-- Route 5% of orders to new pipeline by hash\nINSERT INTO orders_new_pipeline\nSELECT * FROM orders_stream\nWHERE HASH(order_id) % 100 < 5;  -- 5% canary\n\nINSERT INTO orders_prod_pipeline\nSELECT * FROM orders_stream\nWHERE HASH(order_id) % 100 >= 5;  -- 95% production</code></pre>\n            <h3>Key Differences</h3>\n            <ul>\n                <li><strong>Blue/Green:</strong> Full parallel copy, instant atomic cutover. Higher cost but maximum safety. Best for batch pipelines and schema migrations.</li>\n                <li><strong>Canary:</strong> Partial traffic split, gradual rollout. Lower cost. Best for high-volume streaming pipelines where full duplication is expensive.</li>\n            </ul>\n        ",
+        "hasDiagram": false,
+        "hasTable": true,
+        "tableData": {
+            "headers": [
+                "Dimension",
+                "Blue/Green",
+                "Canary"
+            ],
+            "rows": [
+                [
+                    "Traffic split",
+                    "0% / 100% (hard cutover)",
+                    "Gradual % increase"
+                ],
+                [
+                    "Cost",
+                    "2x compute during validation",
+                    "~5-50% overhead"
+                ],
+                [
+                    "Rollback speed",
+                    "Instant (alias swap)",
+                    "Gradual re-routing"
+                ],
+                [
+                    "Best for",
+                    "Batch pipelines, schema changes",
+                    "High-volume streaming"
+                ],
+                [
+                    "Validation period",
+                    "Days to weeks",
+                    "Hours to days"
+                ]
             ]
         },
-        interviewQuestions: [
-            { question: "How would you implement a Blue/Green deployment for a daily batch pipeline in Snowflake?", answer: "Run the new pipeline version writing to a _green schema in parallel with the production _blue schema for 3-7 days. Compare row counts, SUM aggregates on key metrics, and null rates between blue and green daily. Once validated, swap the production view alias to point to the green schema. If issues arise within 48 hours, flip the view alias back to blue for an instant zero-data-loss rollback." },
-            { question: "When would you choose Canary over Blue/Green for a data pipeline?", answer: "Choose Canary when running two full pipeline copies is cost-prohibitive — typically high-volume streaming pipelines (millions of events per hour). By routing only 5-10% of traffic to the new version, you validate correctness with minimal extra compute. As confidence grows, gradually increase the canary percentage to 100% without a hard cutover." }
+        "interviewQuestions": [
+            {
+                "question": "How would you implement a Blue/Green deployment for a daily batch pipeline in Snowflake?",
+                "answer": "Run the new pipeline version writing to a _green schema in parallel with the production _blue schema for 3-7 days. Compare row counts, SUM aggregates on key metrics, and null rates between blue and green daily. Once validated, swap the production view alias to point to the green schema. If issues arise within 48 hours, flip the view alias back to blue for an instant zero-data-loss rollback."
+            },
+            {
+                "question": "When would you choose Canary over Blue/Green for a data pipeline?",
+                "answer": "Choose Canary when running two full pipeline copies is cost-prohibitive — typically high-volume streaming pipelines (millions of events per hour). By routing only 5-10% of traffic to the new version, you validate correctness with minimal extra compute. As confidence grows, gradually increase the canary percentage to 100% without a hard cutover."
+            }
         ]
+    },
+    "1.9": {
+        "id": "1.9",
+        "stage": "Stage 2: Observability",
+        "module": "SLAs",
+        "title": "SLA vs SLO vs SLI",
+        "subtitle": "Service Level Metrics",
+        "duration": "🕒 10 min read",
+        "difficulty": "Intermediate",
+        "theory": "<ul><li><strong>SLA (Agreement):</strong> Business contract (99.9% uptime).</li><li><strong>SLO (Objective):</strong> Internal team goal (99.95%).</li><li><strong>SLI (Indicator):</strong> Actual measured performance (99.98%).</li></ul>",
+        "hasDiagram": false,
+        "hasTable": false,
+        "interviewQuestions": []
+    },
+    "1.10": {
+        "id": "1.10",
+        "stage": "Stage 2: Observability",
+        "module": "Lineage",
+        "title": "Lineage & Root Cause Analysis",
+        "subtitle": "OpenLineage, Purview",
+        "duration": "🕒 10 min read",
+        "difficulty": "Advanced",
+        "theory": "<ul><li><strong>Lineage Tools:</strong> OpenLineage, Microsoft Purview, dbt Docs map data dependencies.</li><li><strong>Root Cause Analysis:</strong> Tracing pipeline failures using lineage and logs.</li></ul>",
+        "hasDiagram": false,
+        "hasTable": false,
+        "interviewQuestions": []
     }
 };
-

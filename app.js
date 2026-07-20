@@ -225,7 +225,18 @@ function renderSidebar() {
 
     // Group active curriculum lessons by Stage header
     const stages = {};
-    Object.keys(source).sort().forEach(key => {
+    const sortedKeys = Object.keys(source).sort((a, b) => {
+        const aParts = a.split('.').map(Number);
+        const bParts = b.split('.').map(Number);
+        for (let i = 0; i < Math.max(aParts.length, bParts.length); i++) {
+            const numA = aParts[i] || 0;
+            const numB = bParts[i] || 0;
+            if (numA !== numB) return numA - numB;
+        }
+        return 0;
+    });
+
+    sortedKeys.forEach(key => {
         const lesson = source[key];
         const matchKey = `${activeTech}_${lesson.id}`;
 
