@@ -275,5 +275,87 @@ window.scenariosLessons = {
                 answer: "Salting involves appending a random integer (e.g., 1 to 10) to a skewed join key in the large table, and replicating the small table 10 times with the corresponding salt values. This forces the shuffling algorithm to distribute the skewed key across 10 different tasks instead of just one."
             }
         ]
+    },
+    "1.11": {
+        id: "1.11",
+        stage: "Stage 2: ADF & Snowflake Integrations",
+        module: "Integration",
+        title: "Orchestrating Snowflake via ADF",
+        subtitle: "Using ADF to execute Snowflake Stored Procedures and Scripts.",
+        duration: "🕒 10 min read",
+        difficulty: "Intermediate",
+        theory: `
+            <h3>The Scenario</h3>
+            <p>You need to trigger a complex Snowflake transformation process from an Azure Data Factory (ADF) pipeline that also orchestrates other Azure services.</p>
+            <h3>The Approach</h3>
+            <ul>
+                <li><strong>Copy Activity / Script Activity:</strong> Use the ADF Script Activity (with a Snowflake linked service) to execute SQL commands like <code>CALL my_stored_proc()</code>.</li>
+                <li><strong>Lookup Activity:</strong> If you need to retrieve a value from Snowflake (e.g., a Watermark or row count) to use later in the pipeline, use the Lookup Activity.</li>
+                <li><strong>Authentication:</strong> Secure the Linked Service using Azure Key Vault to store the Snowflake user password or use a Key Pair auth method.</li>
+                <li><strong>Network Security:</strong> Ensure the Azure Integration Runtime IP is whitelisted in Snowflake's Network Policies.</li>
+            </ul>
+        `,
+        hasDiagram: false,
+        hasTable: false,
+        interviewQuestions: [
+            {
+                question: "How do you handle a long-running Snowflake stored procedure in ADF that times out?",
+                answer: "ADF activities have a default timeout. If the Snowflake procedure takes longer, I would optimize the Snowflake query first. If it's inherently long, I would redesign it to be asynchronous: start the task, and use an Until loop in ADF to poll a Snowflake status table until the job completes."
+            }
+        ]
+    },
+    "1.12": {
+        id: "1.12",
+        stage: "Stage 2: ADF & Snowflake Integrations",
+        module: "Data Ingestion",
+        title: "ADLS to Snowflake via Snowpipe vs ADF",
+        subtitle: "Choosing between ADF Copy Activity and Snowpipe for ingestion.",
+        duration: "🕒 15 min read",
+        difficulty: "Advanced",
+        theory: `
+            <h3>The Scenario</h3>
+            <p>Files are landing in Azure Data Lake Storage (ADLS) Gen2 every 5 minutes. You need to load them into Snowflake quickly and cost-effectively.</p>
+            <h3>The Approach</h3>
+            <ul>
+                <li><strong>ADF Copy Activity:</strong> Good for batch loads, but has spin-up time overhead. Requires an ADF pipeline trigger. Better if complex pre-processing in Azure is required.</li>
+                <li><strong>Snowpipe (Auto-Ingest):</strong> Best for continuous loading. Configure an Azure Event Grid to trigger Snowpipe as soon as a blob lands in ADLS.</li>
+                <li><strong>Cost Implications:</strong> Snowpipe uses serverless compute (billed per second of compute used). ADF Copy Activity bills for DIUs (Data Integration Units) and execution time. Snowpipe is generally cheaper and faster for continuous micro-batch file ingestion.</li>
+            </ul>
+        `,
+        hasDiagram: false,
+        hasTable: false,
+        interviewQuestions: [
+            {
+                question: "How do you authenticate Snowpipe to read from an ADLS Gen2 private storage account?",
+                answer: "I would create an Azure AD App Registration (Service Principal). In Snowflake, create a STORAGE INTEGRATION using the Tenant ID and App ID. Then, grant the Snowflake App 'Storage Blob Data Contributor' RBAC role on the ADLS container."
+            }
+        ]
+    },
+    "1.13": {
+        id: "1.13",
+        stage: "Stage 2: ADF & Snowflake Integrations",
+        module: "Error Handling",
+        title: "Handling Failures in ADF-Snowflake Pipelines",
+        subtitle: "Building resilient pipelines between Azure and Snowflake.",
+        duration: "🕒 10 min read",
+        difficulty: "Intermediate",
+        theory: `
+            <h3>The Scenario</h3>
+            <p>An ADF pipeline loads data from an on-prem SQL server into Snowflake. Occasionally, the network drops or Snowflake hits concurrency limits, causing the pipeline to fail halfway.</p>
+            <h3>The Approach</h3>
+            <ul>
+                <li><strong>Retry Policies:</strong> Configure the ADF Activity with a retry count (e.g., 3) and retry interval (e.g., 30 seconds) to handle transient network/concurrency errors.</li>
+                <li><strong>Fault Tolerance (Skip Incompatible Rows):</strong> When using ADF Copy Activity to Snowflake, enable fault tolerance to skip and log incompatible rows to a blob storage account rather than failing the whole batch.</li>
+                <li><strong>Idempotent Operations:</strong> Ensure the Snowflake target tables use <code>MERGE</code> or <code>DELETE + INSERT</code> so that rerunning the ADF pipeline doesn't duplicate data.</li>
+            </ul>
+        `,
+        hasDiagram: false,
+        hasTable: false,
+        interviewQuestions: [
+            {
+                question: "If a Copy Activity from ADLS to Snowflake fails, how do you alert the team?",
+                answer: "I would attach a Web Activity or an alert mechanism on the 'On Failure' path of the Copy Activity in ADF. This could trigger an Azure Logic App that sends an email or a Teams/Slack notification with the pipeline run ID and error message."
+            }
+        ]
     }
 };
